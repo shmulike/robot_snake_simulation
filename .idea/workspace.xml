@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="72b53220-ba58-480b-8e93-c7df757227af" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="JupyterTrust" id="c7074f16-5482-4247-8c5f-6b933700fe4a" />
+  <component name="ProjectId" id="1dM7icq63g4wwGgGaq9NW2j83X5" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="72b53220-ba58-480b-8e93-c7df757227af" name="Default Changelist" comment="" />
+      <created>1592223236684</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1592223236684</updated>
+      <workItem from="1592223239048" duration="861000" />
+      <workItem from="1592486556264" duration="4399000" />
+      <workItem from="1592495249049" duration="2711000" />
+      <workItem from="1592573226636" duration="3847000" />
+      <workItem from="1592735248274" duration="1059000" />
+      <workItem from="1592736855873" duration="9520000" />
+      <workItem from="1592758642155" duration="485000" />
+      <workItem from="1592923324046" duration="2356000" />
+      <workItem from="1593091414015" duration="11123000" />
+      <workItem from="1593255939908" duration="4831000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="2" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="2545" y="422" width="575" height="270" key="#Notifications" timestamp="1592223302711">
+      <screen x="1680" y="0" width="1920" height="1080" />
+    </state>
+    <state x="2545" y="422" width="575" height="270" key="#Notifications/1680.0.1920.1080/0.27.1680.1023@1680.0.1920.1080" timestamp="1592223302711" />
+    <state x="608" y="204" width="984" height="737" key="SettingsEditor" timestamp="1592573347056">
+      <screen x="72" y="27" width="1848" height="1053" />
+    </state>
+    <state x="2556" y="194" width="1022" height="737" key="SettingsEditor/1680.0.1920.1080/0.27.1680.1023@1680.0.1920.1080" timestamp="1592223419638" />
+    <state x="608" y="204" width="984" height="737" key="SettingsEditor/72.27.1848.1053@72.27.1848.1053" timestamp="1592573347056" />
+  </component>
+</project>

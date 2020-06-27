@@ -3,13 +3,14 @@
 
   <!-- properties -->
   <!-- 1.57079632679 -->
-  <property name="cyl_radius" value="0.0475" /> 
-  <property name="cyl_height" value="0.12" />
-  <property name="cyl_mass" value="0.125" /> <!-- in kg-->
-  <property name="rev_axisY" value="0 1 0" />
-  <property name="rev_axisZ" value="0 0 1" />
-  <property name="deg_to_rad" value="0.01745329251994329577"/>
-  <property name="Deg90toRad" value="1.57079632679"/>
+  <xacro:property name="cyl_radius" value="0.0475" />
+  <xacro:property name="cyl_diameter" value="0.095" />
+  <xacro:property name="cyl_height" value="0.12" />
+  <xacro:property name="cyl_mass" value="0.125" /> <!-- in kg-->
+  <xacro:property name="rev_axisY" value="0 1 0" />
+  <xacro:property name="rev_axisZ" value="0 0 1" />
+  <xacro:property name="deg2rad" value="0.01745329251994329577"/>
+  <xacro:property name="Deg90Rad" value="1.57079632679"/>
 
   <macro name="cylinder_inertia" params="mass">
 	<!--<origin xyz="0 0 ${cyl_radius}" rpy="0 0 0"/>-->
@@ -44,54 +45,56 @@
 	  </transmission>
    </xacro:macro>
 
- 
-<xacro:macro name="cyl" params="num material">  
-     <!-- params : number color revAxis { Y , Z } -->        
-    <link name="link${num}">
+
+<xacro:macro name="cyl" params="num material">
+     <!-- params : number color revAxis { Y , Z } -->
+    <link name="link_${num}">
       <visual>
-        <origin rpy="0 0 ${Deg90toRad}" xyz="0.136 ${-cyl_radius} -0.0525"/>
+
+        <!--<origin rpy="0.0 0.0 -${Deg90Rad}" xyz="0.024 ${cyl_radius} ${-cyl_radius}"/>-->
+        <origin rpy="0.0 0.0 0.0" xyz="${-cyl_radius} 0.024 ${-cyl_radius}"/>
         <geometry>
           <!--<cylinder length="${cyl_height}" radius="${cyl_radius}" />-->
-          <mesh filename="package://robot_snake_1/meshes/link_2.STL"/>
+          <mesh filename="package://robot_snake_simulation/meshes/link_2.STL"/>
         </geometry>
         <material name="${material}" />
       </visual>
 
       <collision>
-        <origin rpy="0 0 1.57079632679" xyz="0.136 ${-cyl_radius} -0.0525"/>
+        <!--<origin rpy="0.0 0.0 -${Deg90Rad}" xyz="0.024 ${cyl_radius} ${-cyl_radius}"/>-->
+        <origin rpy="0.0 0.0 0.0" xyz="${-cyl_radius} 0.024 ${-cyl_radius}"/>
         <geometry>
-          <!--<cylinder length="${cyl_height}" radius="${cyl_radius}" />-->
-          <mesh filename="package://robot_snake_1/meshes/link_2.STL"/>
+          <mesh filename="package://robot_snake_simulation/meshes/link_2.STL"/>
         </geometry>
       </collision>
       <inertial>
         <mass value="${cyl_mass}" />
-        <cylinder_inertia  mass="${cyl_mass}" />
+        <inertia ixx="0.4" ixy="0.0" ixz="0.0" iyy="0.4" iyz="0.0" izz="0.2"/>
+        <!--<cylinder_inertia  mass="${cyl_mass}" />-->
       </inertial>
     </link>
-    
+
   </xacro:macro>
- 
+
  <xacro:macro name="attachjoint" params="parent child rev">
   <joint name="joint${child}" type="continuous">
-    <parent link="link${parent}"/>
-    <child link="link${child}"/>
-    <origin xyz="0.16 0 0" rpy="0 0 0" />
+    <parent link="link_${parent}"/>
+    <child link="link_${child}"/>
+    <origin xyz="0.0 0.16 0.0" rpy="0.0 0.0 0.0" />
     <axis xyz="${rev}" />
     <dynamics damping="0.7"/>
   </joint>
  </xacro:macro>
- 
- 
-<link name="dummy">
-</link>
+
+
+<link name="world"/>
 
 <link name="base_link" >
   <visual>
-    <origin rpy="1.57079632679 0 3.14159265359" xyz="1 -0.5 -0.36"/> 
+    <origin rpy="1.57079632679 0 3.14159265359" xyz="1 -0.5 -0.36"/>
     <geometry>
         <!--<box size="0.1 0.6 0.6"/>-->
-      <mesh filename="package://robot_snake_1/meshes/base.STL"/>
+      <mesh filename="package://robot_snake_simulation/meshes/base.STL"/>
     </geometry>
   </visual>
   <collision>
@@ -111,7 +114,7 @@
         <origin rpy="0 0 0" xyz="-0.6 -0.195 -0.3175"/><!---0.3175-->
         <geometry>
         <!--<box size="0.3 0.3 0.3"/>-->
-          <mesh filename="package://robot_snake_1/meshes/arc.STL"/>
+          <mesh filename="package://robot_snake_simulation/meshes/arc.STL"/>
         </geometry>
       </visual>
     <collision>
@@ -126,25 +129,25 @@
       <inertia ixx="0.0741666666667" ixy="0.0" ixz="0.0" iyy="0.0585416666667" iyz="0.0" izz="0.0260416666667"/>
    </inertial>
   </link>
- 
-
-<cyl num="1"  material="blue" /> 
-<cyl num="2"  material="white" />
-<cyl num="3"  material="blue" />
-<cyl num="4"  material="white"/>
-<cyl num="5"  material="blue" />
-<cyl num="6"  material="white" />
-<cyl num="7"  material="blue" />
-<cyl num="8"  material="white" />
-<cyl num="9"  material="blue" />
-<cyl num="10" material="white" />
 
 
-  <joint name="dummy_joint" type="fixed">
-    <parent link="dummy" />
-    <child link="base_link" />
+  <xacro:cyl num="1"  material="blue" />
+  <xacro:cyl num="2"  material="white" />
+  <xacro:cyl num="3"  material="blue" />
+  <xacro:cyl num="4"  material="white"/>
+  <xacro:cyl num="5"  material="blue" />
+  <xacro:cyl num="6"  material="white" />
+  <xacro:cyl num="7"  material="blue" />
+  <xacro:cyl num="8"  material="white" />
+  <xacro:cyl num="9"  material="blue" />
+  <xacro:cyl num="10" material="white" />
+
+  <joint name="fixed" type="fixed">
+    <parent link="world"/>
+    <child link="base_link"/>
+    <origin xyz="0.0 0.0 0.5" rpy="0 0 0" />
   </joint>
-  
+
   <joint name="linear1" type="prismatic">
     <parent link="base_link"/>
     <child link="arc"/>
@@ -153,24 +156,27 @@
     <origin xyz="-0.5 0 ${0.7365-0.03175}" rpy="0 0 0" />
         <dynamics damping="0.7"/>
   </joint>
-  
+
+
   <joint name="joint1" type="continuous">
     <parent link="arc"/>
-    <child link="link1"/>
-    <origin xyz="${0.6+0.048} 0 0" rpy="0 0 0" /><!--0.0525 -->
+    <child link="link_1"/>
+    <!--<origin xyz="${0.6+0.048} 0 0" rpy="0 0 0" />--><!--0.0525 -->
+    <origin xyz="0.648 0.0 ${cyl_radius}" rpy="0.0 0.0 ${-Deg90Rad}" /><!--0.0525 -->
     <axis xyz="0 0 1" />
     <dynamics damping="0.7"/>
   </joint>
 
-<attachjoint parent="1"  child="2" rev="0 0 1" />
-<attachjoint parent="2"  child="3" rev="0 0 1" />
-<attachjoint parent="3"  child="4" rev="0 0 1" />
-<attachjoint parent="4"  child="5" rev="0 0 1" />
-<attachjoint parent="5"  child="6" rev="0 0 1" />
-<attachjoint parent="6"  child="7" rev="0 0 1" />
-<attachjoint parent="7"  child="8" rev="0 0 1" />
-<attachjoint parent="8"  child="9" rev="0 0 1" />
-<attachjoint parent="9"  child="10" rev="0 0 1" />
+
+<xacro:attachjoint parent="1"  child="2" rev="0 0 1" />
+<xacro:attachjoint parent="2"  child="3" rev="0 0 1" />
+<xacro:attachjoint parent="3"  child="4" rev="0 0 1" />
+<xacro:attachjoint parent="4"  child="5" rev="0 0 1" />
+<xacro:attachjoint parent="5"  child="6" rev="0 0 1" />
+<xacro:attachjoint parent="6"  child="7" rev="0 0 1" />
+<xacro:attachjoint parent="7"  child="8" rev="0 0 1" />
+<xacro:attachjoint parent="8"  child="9" rev="0 0 1" />
+<xacro:attachjoint parent="9"  child="10" rev="0 0 1" />
 
 <gazebo reference="base_link">
 <material>Gazebo/Gray</material>
@@ -178,34 +184,34 @@
 <gazebo reference="arc">
 <material>Gazebo/Orange</material>
 </gazebo>
-<gazebo reference="link1">
+<gazebo reference="link_1">
 <material>Gazebo/White</material>
 </gazebo>
-<gazebo reference="link2">
+<gazebo reference="link_2">
 <material>Gazebo/Blue</material>
 </gazebo>
-<gazebo reference="link3">
+<gazebo reference="link_3">
 <material>Gazebo/White</material>
 </gazebo>
-<gazebo reference="link4">
+<gazebo reference="link_4">
 <material>Gazebo/Blue</material>
 </gazebo>
-<gazebo reference="link5">
+<gazebo reference="link_5">
 <material>Gazebo/White</material>
 </gazebo>
-<gazebo reference="link6">
+<gazebo reference="link_6">
 <material>Gazebo/Blue</material>
 </gazebo>
-<gazebo reference="link7">
+<gazebo reference="link_7">
 <material>Gazebo/White</material>
 </gazebo>
-<gazebo reference="link8">
+<gazebo reference="link_8">
 <material>Gazebo/Blue</material>
 </gazebo>
-<gazebo reference="link9">
+<gazebo reference="link_9">
 <material>Gazebo/White</material>
 </gazebo>
-<gazebo reference="link10">
+<gazebo reference="link_10">
 <material>Gazebo/Blue</material>
 </gazebo>
 
@@ -229,7 +235,7 @@
    <xacro:transmission_block joint_name="joint4"/>
    <xacro:transmission_block joint_name="joint5"/>
    <xacro:transmission_block joint_name="joint6"/>
-   <xacro:transmission_block joint_name="joint7"/>  
+   <xacro:transmission_block joint_name="joint7"/>
    <xacro:transmission_block joint_name="joint8"/>
    <xacro:transmission_block joint_name="joint9"/>
    <xacro:transmission_block joint_name="joint10"/>
@@ -249,7 +255,7 @@
   <!--
   <xacro:xtion_pro_live name="rgbd_camera" parent="link10">
    <origin xyz="0.2 0 0" rpy="0 0 0"/>
-    <origin xyz="0 0 0" rpy="${-90.0 * deg_to_rad} 0 ${-90.0 * deg_to_rad}"/>
+    <origin xyz="0 0 0" rpy="${-90.0 * deg2rad} 0 ${-90.0 * deg2rad}"/>
   </xacro:xtion_pro_live>
   -->
 </robot>
