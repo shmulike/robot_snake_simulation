@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 # license removed for brevity
-# Shmulik Edelman last update 15.6.20
+# Shmulik Edelman last update
 
 import numpy as np
 import rospy
 from sensor_msgs.msg import Joy
 from std_msgs.msg import Float64, Float64MultiArray
 from geometry_msgs.msg import Twist
-from math import pi, sqrt
 import numpy as np
-import scipy.interpolate as sc  # interp1d, CubicSpline, splprep, splev
+from Robot import Robot
+import matplotlib.pyplot as plt
 import time
 
 # All dimentions are in mm
@@ -54,6 +54,30 @@ class Node:
         self._N = 200
         self.Kp_curve = 0.00041
 
+        self.robot = Robot()
+
+        fig = plt.figure(1)
+
+        self.ax = fig.add_subplot(111, projection='3d')
+
+        plt.ion()
+        # self.ax = fig.gca(projection='3d', adjustable='box')
+        self.ax.set_xlabel('X')
+        self.ax.set_ylabel('Y')
+        self.ax.set_zlabel('Z')
+
+        # self.ax.set_xlim([-400, 400])
+        # self.ax.set_ylim([-400, 400])
+        # self.ax.set_zlim([-400, 400])
+
+        # self.plotPath()
+        # self.plotHead()
+        self.ax.plot3D([0,10], [0,10], [0,10], linewidth=10)
+        plt.draw()
+        plt.pause(0.01)
+        plt.show(block=False)
+        # time.sleep(0.001)
+        '''
         self.pub_vec = [rospy.Publisher('/snake_10/linear_position_controller/command', Float64, queue_size=10),
                         rospy.Publisher('/snake_10/joint1_position_controller/command', Float64, queue_size=10),
                         rospy.Publisher('/snake_10/joint2_position_controller/command', Float64, queue_size=10),
@@ -65,21 +89,41 @@ class Node:
                         rospy.Publisher('/snake_10/joint8_position_controller/command', Float64, queue_size=10),
                         rospy.Publisher('/snake_10/joint9_position_controller/command', Float64, queue_size=10),
                         rospy.Publisher('/snake_10/joint10_position_controller/command', Float64, queue_size=10)]
-
+        
+        
         self.pub = rospy.Publisher(_cmd_topic, Twist, queue_size=10)
+        '''
         rospy.Subscriber('/joy', Joy, self.joy_update)
-        self.reset_sim()
+        # self.reset_sim()
+        # self.joint_vals = Float32MultiArray()
 
+        # self.joint_vals.data[0] = [0]
+        # for i in range(self._link_N):
+        #     self.joint_vals.data[i + 1] = 0
+
+        # self.angle_range = np.linspace(-np.pi / 2, np.pi, _N)
+        # self.head = Twist()
+        # self.head.linear.x = 0
+        # self.head.angular.z = 0
+        # self.x_move = 0
+        # self.theta_move = 0
 
         while not rospy.is_shutdown():
+            # self.head.linear.x = 0
+            # self.head.angular.z = 0
 
+            # self.head.linear.x += self.x_move
+            # self.head.angular.z += self.theta_move
+            # self.pub.publish(self.head)
+            #
+            # self.pub_vec[0].publish(self.head.linear.x)
+            # self.pub_vec[1].publish(self.head.angular.z)
 
             self.rate.sleep()
 
 
-
-    def headTurn(self, state):
-
+    def joystick_Left_X(self, state):
+        print(state)
 
 
     def joy_update(self, data):
@@ -92,8 +136,24 @@ class Node:
             Button - 'X' - data.burrons[2]
         """
         # print("joy_update: {:.2f}".format(data.axes[1]))
-        self.head_turn(-data.axes[0])
-        self.head_move(data.axes[7])
+        if (data.axes[1]!=0 or data.axes[0]!=0):
+            # plt.cla()
+            self.ax.clear()
+
+            self.robot.turnHead(thetaY=data.axes[1], thetaZ=-data.axes[0])
+            # self.plotPath()
+            path = self.robot.getPath()
+            self.ax.plot(path[:, 0], path[:, 1], path[:, 2], 'b.', markersize=5)
+            # plt.pause(0.001)
+
+            # self.plotHead()
+            headXAxis, headYAxis, headZAxis = self.robot.getHead()
+            self.ax.plot(headXAxis[0, :], headXAxis[0, :], headXAxis[0, :], 'r', linewidth=3)
+
+            plt.draw()
+            plt.show()
+            # plt.pause(0.0000001)
+
         # self.head_move(data.axes[1])
         if data.buttons[2] == 1:
             print("Reset Simulation")
@@ -103,10 +163,34 @@ class Node:
         # self.x_move = _dx * data.axes[1]
         # self.theta_move = _dTheta * data.axes[0]
 
+    def plotPath(self):
+        path = self.robot.getPath()
+        # self.ax.autoscale(enable=True, axis='both', tight=True)
+        # plt.plot(self.path[:, 0], self.path[:, 1], self.path[:, 2], 'b.', markersize=1)
+        self.ax.plot3D(path[:, 0], path[:, 1], path[:, 2], 'b.', markersize=5)
+
+        # plt.draw()
+        # plt.pause(0.001)
+
+    def plotHead(self):
+        headXAxis, headYAxis, headZAxis = self.robot.getHead()
+        print(headXAxis)
+        # print(headXAxis)
+        print(type(headXAxis))
+        self.ax.plot3D(headXAxis[0, :], headXAxis[0, :], headXAxis[0, :], 'r', markersize=5)
+        # self.ax.plot3D(headYAxis[1, :], headYAxis[1, :], headYAxis[1, :], 'g', markersize=5)
+        # self.ax.plot3D(headZAxis[1, :], headZAxis[1, :], headZAxis[1, :], 'b', markersize=5)
+        # plt.draw()
+        # plt.pause(0.001)
+
+
 
 if __name__ == '__main__':
     try:
-        Node()
+        node = Node()
         rospy.spin()
     except rospy.ROSInterruptException:
         pass
+
+
+
