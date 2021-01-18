@@ -20,17 +20,33 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="72b53220-ba58-480b-8e93-c7df757227af" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/ROS.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/ros.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/other.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/other.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/robot_snake_simulation.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/robot_snake_simulation.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/launch/sim_v2.launch" beforeDir="false" afterPath="$PROJECT_DIR$/launch/sim_v2.launch" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Node.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Node.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Robot.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/Robot.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="JupyterTrust" id="c7074f16-5482-4247-8c5f-6b933700fe4a" />
+  <component name="JupyterTrust" id="ee1f2464-72ae-4637-a71f-1612289f51b6" />
   <component name="ProjectId" id="1dM7icq63g4wwGgGaq9NW2j83X5" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -39,9 +55,16 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../robot_snake_4" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.path.for.package.tslint" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="settings.editor.selected.configurable" value="PyScientificConfigurable" />
     <property name="settings.editor.splitter.proportion" value="0.3264166" />
   </component>
   <component name="PyConsoleOptionsProvider">
@@ -52,6 +75,58 @@
       </console-settings>
     </option>
   </component>
+  <component name="RunManager">
+    <configuration name="Node2" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="robot_snake_simulation" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/Node2.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <module name="robot_snake_simulation" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.Node2" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -87,11 +162,15 @@
       <workItem from="1594315973635" duration="4000" />
       <workItem from="1595161898469" duration="221000" />
       <workItem from="1595162265887" duration="678000" />
+      <workItem from="1610883387181" duration="11040000" />
+      <workItem from="1610894443950" duration="4882000" />
+      <workItem from="1610958496011" duration="2726000" />
+      <workItem from="1610963051816" duration="1561000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="2" />
+    <option name="version" value="3" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
@@ -106,27 +185,52 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="2545" y="422" width="575" height="270" key="#Notifications" timestamp="1592223302711">
-      <screen x="1680" y="0" width="1920" height="1080" />
+    <state x="652" y="354" width="672" height="399" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1610887170181">
+      <screen x="67" y="30" width="1853" height="1050" />
     </state>
-    <state x="2545" y="422" width="575" height="270" key="#Notifications/1680.0.1920.1080/0.27.1680.1023@1680.0.1920.1080" timestamp="1592223302711" />
-    <state x="806" y="331" width="564" height="489" key="EnvironmentVariablesDialog" timestamp="1593362478791">
-      <screen x="72" y="27" width="1848" height="1053" />
+    <state x="652" y="354" width="672" height="399" key="#com.intellij.fileTypes.FileTypeChooser/67.30.1853.1050@67.30.1853.1050" timestamp="1610887170181" />
+    <state width="1807" height="342" key="GridCell.Tab.0.bottom" timestamp="1610964678277">
+      <screen x="67" y="30" width="1853" height="1050" />
     </state>
-    <state x="806" y="331" width="564" height="489" key="EnvironmentVariablesDialog/72.27.1848.1053@72.27.1848.1053" timestamp="1593362478791" />
-    <state x="776" y="310" width="424" height="484" key="FileChooserDialogImpl" timestamp="1595163030681">
-      <screen x="67" y="27" width="1853" height="1053" />
+    <state width="1807" height="342" key="GridCell.Tab.0.bottom/67.30.1853.1050@67.30.1853.1050" timestamp="1610964678277" />
+    <state width="1807" height="342" key="GridCell.Tab.0.center" timestamp="1610964678276">
+      <screen x="67" y="30" width="1853" height="1050" />
     </state>
-    <state x="776" y="310" width="424" height="484" key="FileChooserDialogImpl/67.27.1853.1053@67.27.1853.1053" timestamp="1595163030681" />
-    <state x="335" y="204" width="1253" height="737" key="SettingsEditor" timestamp="1595161911990">
-      <screen x="67" y="27" width="1853" height="1053" />
+    <state width="1807" height="342" key="GridCell.Tab.0.center/67.30.1853.1050@67.30.1853.1050" timestamp="1610964678276" />
+    <state width="1807" height="342" key="GridCell.Tab.0.left" timestamp="1610964678276">
+      <screen x="67" y="30" width="1853" height="1050" />
     </state>
-    <state x="2556" y="194" width="1022" height="737" key="SettingsEditor/1680.0.1920.1080/0.27.1680.1023@1680.0.1920.1080" timestamp="1592223419638" />
-    <state x="335" y="204" key="SettingsEditor/67.27.1853.1053@67.27.1853.1053" timestamp="1595161911990" />
-    <state x="339" y="204" width="1253" height="737" key="SettingsEditor/72.27.1848.1053@72.27.1848.1053" timestamp="1593364959679" />
-    <state x="503" y="231" width="672" height="678" key="search.everywhere.popup" timestamp="1593426430070">
-      <screen x="0" y="27" width="1680" height="1023" />
+    <state width="1807" height="342" key="GridCell.Tab.0.left/67.30.1853.1050@67.30.1853.1050" timestamp="1610964678276" />
+    <state width="1807" height="342" key="GridCell.Tab.0.right" timestamp="1610964678276">
+      <screen x="67" y="30" width="1853" height="1050" />
     </state>
-    <state x="503" y="231" width="672" height="678" key="search.everywhere.popup/1680.0.1920.1080/0.27.1680.1023@0.27.1680.1023" timestamp="1593426430070" />
+    <state width="1807" height="342" key="GridCell.Tab.0.right/67.30.1853.1050@67.30.1853.1050" timestamp="1610964678276" />
+    <state width="1807" height="342" key="GridCell.Tab.1.bottom" timestamp="1610964678277">
+      <screen x="67" y="30" width="1853" height="1050" />
+    </state>
+    <state width="1807" height="342" key="GridCell.Tab.1.bottom/67.30.1853.1050@67.30.1853.1050" timestamp="1610964678277" />
+    <state width="1807" height="342" key="GridCell.Tab.1.center" timestamp="1610964678277">
+      <screen x="67" y="30" width="1853" height="1050" />
+    </state>
+    <state width="1807" height="342" key="GridCell.Tab.1.center/67.30.1853.1050@67.30.1853.1050" timestamp="1610964678277" />
+    <state width="1807" height="342" key="GridCell.Tab.1.left" timestamp="1610964678277">
+      <screen x="67" y="30" width="1853" height="1050" />
+    </state>
+    <state width="1807" height="342" key="GridCell.Tab.1.left/67.30.1853.1050@67.30.1853.1050" timestamp="1610964678277" />
+    <state width="1807" height="342" key="GridCell.Tab.1.right" timestamp="1610964678277">
+      <screen x="67" y="30" width="1853" height="1050" />
+    </state>
+    <state width="1807" height="342" key="GridCell.Tab.1.right/67.30.1853.1050@67.30.1853.1050" timestamp="1610964678277" />
+    <state x="475" y="189" key="SettingsEditor" timestamp="1610894661320">
+      <screen x="67" y="30" width="1853" height="1050" />
+    </state>
+    <state x="475" y="189" key="SettingsEditor/67.30.1853.1050@67.30.1853.1050" timestamp="1610894661320" />
+    <state x="767" y="468" width="443" height="172" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1610889959225">
+      <screen x="67" y="30" width="1853" height="1050" />
+    </state>
+    <state x="767" y="468" width="443" height="172" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/67.30.1853.1050@67.30.1853.1050" timestamp="1610889959225" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/robot_snake_simulation$Node2.coverage" NAME="Node2 Coverage Results" MODIFIED="1610964615104" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
   </component>
 </project>

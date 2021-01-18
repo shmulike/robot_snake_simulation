@@ -10,7 +10,8 @@ from geometry_msgs.msg import Twist
 import numpy as np
 from Robot import Robot
 import matplotlib.pyplot as plt
-import time
+import mpl_toolkits.mplot3d.axes3d as p3
+import matplotlib.animation as animation
 
 # All dimentions are in mm
 # _dx = 0.05
@@ -22,7 +23,7 @@ _N = 1000
 _joy_dead_zone = 0.12
 _joint_limit = np.deg2rad(40)
 _head_L = 0.2  # meter
-_head_init_x = 160*9
+_head_init_x = 160 * 9
 _head_init_y = 0
 
 
@@ -37,8 +38,8 @@ class Node:
         self.head_angle = 0
         # self.head_move = 0
         self.A_head = np.array([[1, 0, _head_init_x],
-                                  [0, 1, _head_init_y],
-                                  [0, 0, 1]])
+                                [0, 1, _head_init_y],
+                                [0, 0, 1]])
         # self.path = np.array([np.linspace(-self._link_L * self._link_N * 2, 0, self._N, endpoint=True),
         #                         np.zeros(self._N),
         #                         np.ones(self._N)])
@@ -47,6 +48,8 @@ class Node:
                               np.ones(self._N)])
 
     def __init__(self):
+        np.random.seed(19680801)
+
         self._dtheta = 0.05
         self._dx = 10
         self._link_L = 160
@@ -56,27 +59,39 @@ class Node:
 
         self.robot = Robot()
 
-        fig = plt.figure(1)
+        rospy.Subscriber('/joy', Joy, self.joy_update)
 
-        self.ax = fig.add_subplot(111, projection='3d')
+        ### initiate plot
+        fig = plt.figure()
+        ax = p3.Axes3D(fig)
+        ax.view_init(elev=35, azim=-150)
+        # data = [self.Gen_RandLine(25, 3)]
+        # print(data)
 
-        # plt.ion()
-        # self.ax = fig.gca(projection='3d', adjustable='box')
-        self.ax.set_xlabel('X')
-        self.ax.set_ylabel('Y')
-        self.ax.set_zlabel('Z')
 
-        self.ax.set_xlim([-400, 400])
-        self.ax.set_ylim([-400, 400])
-        self.ax.set_zlim([-400, 400])
+        data = self.robot.head_axis
+        # Creating fifty line objects.
+        # NOTE: Can't pass empty arrays into 3d version of plot()
+        axes_color = ["red", "green", "blue"]
+        head_lines = [ax.plot(dat[0, 0:1], dat[1, 0:1], dat[2, 0:1])[0] for dat in data]
+        for color, line in zip(axes_color, head_lines):
+            line.set_color(color)
+        path = self.robot.path
 
-        # self.plotPath()
-        # self.plotHead()
-        self.ax.plot3D([0, 10], [0, 10], [0, 10], linewidth=10)
-        plt.draw()
-        plt.pause(0.01)
-        plt.show(block=False)
-        # time.sleep(0.001)
+        path_lines, = ax.plot(path[0, :], path[1, :], path[2, :], '.', markersize=1)
+
+        ax.set_xlim3d([-200, 1000])
+        ax.set_ylim3d([-600, 600])
+        ax.set_zlim3d([-600, 600])
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
+        ax.set_zlabel('Z')
+
+        ax.set_title('3D Test')
+
+        line_ani = animation.FuncAnimation(fig, func=self.update_lines, frames=60, fargs=(head_lines, path_lines), interval=1, blit=False)
+        plt.show()
+
         '''
         self.pub_vec = [rospy.Publisher('/snake_10/linear_position_controller/command', Float64, queue_size=10),
                         rospy.Publisher('/snake_10/joint1_position_controller/command', Float64, queue_size=10),
@@ -89,11 +104,10 @@ class Node:
                         rospy.Publisher('/snake_10/joint8_position_controller/command', Float64, queue_size=10),
                         rospy.Publisher('/snake_10/joint9_position_controller/command', Float64, queue_size=10),
                         rospy.Publisher('/snake_10/joint10_position_controller/command', Float64, queue_size=10)]
-        
-        
+
+
         self.pub = rospy.Publisher(_cmd_topic, Twist, queue_size=10)
         '''
-        rospy.Subscriber('/joy', Joy, self.joy_update)
         # self.reset_sim()
         # self.joint_vals = Float32MultiArray()
 
@@ -121,10 +135,8 @@ class Node:
 
             self.rate.sleep()
 
-
     def joystick_Left_X(self, state):
         print(state)
-
 
     def joy_update(self, data):
         """callback for /joy
@@ -136,30 +148,11 @@ class Node:
             Button - 'X' - data.burrons[2]
         """
         # print("joy_update: {:.2f}".format(data.axes[1]))
-        if (data.axes[1]!=0 or data.axes[0]!=0):
-            print("move\t{:.2f}:{:.2f}".format(data.axes[1], data.axes[0]))
 
-            # plt.cla()
-            # self.ax.clear()
+        if (data.axes[0] != 0 or data.axes[1] != 0 or data.axes[4] != 0):
+            self.robot.move_head(thetaY=data.axes[1], thetaZ=data.axes[0], forward=data.axes[4])
 
-            self.robot.turnHead(thetaY=data.axes[1], thetaZ=-data.axes[0])
-            path = self.robot.path
-            self.ax.plot(path[:, 0], path[:, 1], path[:, 2], 'b.', markersize=5)
-            #
-            # self.plotHead()
-            headXAxis, headYAxis, headZAxis = self.robot.getHead()
-            self.ax.plot(headXAxis[0, :], headXAxis[1, :], headXAxis[2, :], 'r', linewidth=3)
-            self.ax.plot(headYAxis[0, :], headYAxis[1, :], headYAxis[2, :], 'g', linewidth=3)
-            self.ax.plot(headZAxis[0, :], headZAxis[1, :], headZAxis[2, :], 'b', linewidth=3)
 
-            self.ax.set_xlim([-400, 400])
-            self.ax.set_ylim([-400, 400])
-            self.ax.set_zlim([-400, 400])
-
-            plt.draw()
-            plt.pause(0.00001)
-
-        # self.head_move(data.axes[1])
         if data.buttons[2] == 1:
             print("Reset Simulation")
             self.reset_sim()
@@ -168,26 +161,19 @@ class Node:
         # self.x_move = _dx * data.axes[1]
         # self.theta_move = _dTheta * data.axes[0]
 
-    def plotPath(self):
-        path = self.robot.getPath()
-        # self.ax.autoscale(enable=True, axis='both', tight=True)
-        # plt.plot(self.path[:, 0], self.path[:, 1], self.path[:, 2], 'b.', markersize=1)
-        self.ax.plot3D(path[:, 0], path[:, 1], path[:, 2], 'b.', markersize=5)
 
-        # plt.draw()
-        # plt.pause(0.001)
 
-    def plotHead(self):
-        headXAxis, headYAxis, headZAxis = self.robot.getHead()
-        print(headXAxis)
-        # print(headXAxis)
-        print(type(headXAxis))
-        self.ax.plot3D(headXAxis[0, :], headXAxis[0, :], headXAxis[0, :], 'r', markersize=5)
-        # self.ax.plot3D(headYAxis[1, :], headYAxis[1, :], headYAxis[1, :], 'g', markersize=5)
-        # self.ax.plot3D(headZAxis[1, :], headZAxis[1, :], headZAxis[1, :], 'b', markersize=5)
-        # plt.draw()
-        # plt.pause(0.001)
+    def update_lines(self, frames, head_lines, path_lines):
+        dataLines = self.robot.head_axis
+        path = self.robot.path
+        for line, data in zip(head_lines, dataLines):
+            line.set_data(data[0:2, :])
+            line.set_3d_properties(data[2, :])
 
+        path_lines.set_data(path[0:2, :])
+        path_lines.set_3d_properties(path[2, :])
+
+        return head_lines, path_lines
 
 
 if __name__ == '__main__':
@@ -196,6 +182,3 @@ if __name__ == '__main__':
         rospy.spin()
     except rospy.ROSInterruptException:
         pass
-
-
-
