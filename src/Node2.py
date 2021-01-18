@@ -78,18 +78,19 @@ class Node:
             line.set_color(color)
         path = self.robot.path
 
-        path_lines, = ax.plot(path[0, :], path[1, :], path[2, :], '.', markersize=1)
+        path_lines, = ax.plot(path[0, :], path[1, :], path[2, :], 'k.', markersize=0.1)
+        joint_lines, = ax.plot(path[0, :], path[1, :], path[2, :], 'bo-')
 
-        ax.set_xlim3d([-200, 1000])
-        ax.set_ylim3d([-600, 600])
-        ax.set_zlim3d([-600, 600])
+        ax.set_xlim3d([0, 2000])
+        ax.set_ylim3d([-1000, 1000])
+        ax.set_zlim3d([-1000, 1000])
         ax.set_xlabel('X')
         ax.set_ylabel('Y')
         ax.set_zlabel('Z')
 
         ax.set_title('3D Test')
 
-        line_ani = animation.FuncAnimation(fig, func=self.update_lines, frames=60, fargs=(head_lines, path_lines), interval=1, blit=False)
+        line_ani = animation.FuncAnimation(fig, func=self.update_lines, frames=60, fargs=(head_lines, path_lines, joint_lines), interval=1, blit=False)
         plt.show()
 
         '''
@@ -145,7 +146,7 @@ class Node:
             data (Joy): the joystick's state
             Left stick - right left - data.axes[0]
             Left stick - up down - data.axes[1]
-            Button - 'X' - data.burrons[2]
+            Button - 'X' - data.buttons[2]
         """
         # print("joy_update: {:.2f}".format(data.axes[1]))
 
@@ -163,15 +164,19 @@ class Node:
 
 
 
-    def update_lines(self, frames, head_lines, path_lines):
+    def update_lines(self, frames, head_lines, path_lines, joint_lines):
         dataLines = self.robot.head_axis
-        path = self.robot.path
         for line, data in zip(head_lines, dataLines):
             line.set_data(data[0:2, :])
             line.set_3d_properties(data[2, :])
 
+        path = self.robot.path
         path_lines.set_data(path[0:2, :])
         path_lines.set_3d_properties(path[2, :])
+
+        joint_pos = self.robot.joint_pos
+        joint_lines.set_data(joint_pos[0:2, :])
+        joint_lines.set_3d_properties(joint_pos[2, :])
 
         return head_lines, path_lines
 
