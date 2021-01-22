@@ -80,7 +80,7 @@ class Node:
 
         path_lines, = ax.plot(path[0, :], path[1, :], path[2, :], 'k.', markersize=0.1)
         joint_lines, = ax.plot(path[0, :], path[1, :], path[2, :], 'dr')
-        joint_recon_lines, = ax.plot(path[0, :], path[1, :], path[2, :], 'sg')
+        # joint_recon_lines, = ax.plot(path[0, :], path[1, :], path[2, :], 'sg')
 
         ax.set_xlim3d([0, 2000])
         ax.set_ylim3d([-1000, 1000])
@@ -91,7 +91,8 @@ class Node:
 
         ax.set_title('3D Test')
 
-        line_ani = animation.FuncAnimation(fig, func=self.update_lines, frames=60, fargs=(head_lines, path_lines, joint_lines, joint_recon_lines), interval=1, blit=False)
+        # line_ani = animation.FuncAnimation(fig, func=self.update_lines, frames=100, fargs=(head_lines, path_lines, joint_lines, joint_recon_lines), interval=1, blit=False)
+        line_ani = animation.FuncAnimation(fig, func=self.update_lines, frames=100, fargs=(head_lines, path_lines, joint_lines), interval=5, blit=False)
         plt.show()
 
         '''
@@ -154,7 +155,7 @@ class Node:
         if (data.axes[0] != 0 or data.axes[1] != 0 or data.axes[4] != 0):
             # self.robot.move_head(thetaY=data.axes[1], thetaZ=data.axes[0], forward=data.axes[4])
             # self.robot.move_head(thetaY=data.axes[1], thetaZ=data.axes[0], forward=data.axes[4])
-            self.robot.move_head(thetaY=0, thetaZ=data.axes[0], forward=data.axes[4])
+            self.robot.move_head(thetaY=data.axes[1], thetaZ=data.axes[0], forward=data.axes[4])
 
 
         if data.buttons[2] == 1:
@@ -165,9 +166,8 @@ class Node:
         # self.x_move = _dx * data.axes[1]
         # self.theta_move = _dTheta * data.axes[0]
 
-
-
-    def update_lines(self, frames, head_lines, path_lines, joint_lines, joint_recon_lines):
+    # def update_lines(self, frames, head_lines, path_lines, joint_lines, joint_recon_lines):
+    def update_lines(self, frames, head_lines, path_lines, joint_lines):
         dataLines = self.robot.head_axis
         for line, data in zip(head_lines, dataLines):
             line.set_data(data[0:2, :])
@@ -181,9 +181,9 @@ class Node:
         joint_lines.set_data(joint_pos[0:2, :])
         joint_lines.set_3d_properties(joint_pos[2, :])
 
-        joint_pos_recon = self.robot.joint_pos_recon
-        joint_recon_lines.set_data(joint_pos_recon[0:2, :])
-        joint_recon_lines.set_3d_properties(joint_pos_recon[2, :])
+        # joint_pos_recon = self.robot.joint_pos_recon
+        # joint_recon_lines.set_data(joint_pos_recon[0:2, :])
+        # joint_recon_lines.set_3d_properties(joint_pos_recon[2, :])
 
         return head_lines, path_lines
 
