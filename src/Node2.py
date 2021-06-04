@@ -19,7 +19,7 @@ import matplotlib.animation as animation
 _node_name = 'joy_listener'
 _cmd_topic = "controlCMD"
 _Hz = 100
-_N = 1000
+_N = 100
 _joy_dead_zone = 0.12
 _joint_limit = np.deg2rad(40)
 _head_L = 0.2  # meter

@@ -4,8 +4,6 @@
     <arg name="joy" default="true"/>
 
 
-
-
     <!-- joy node -->
     <!-- http://wiki.ros.org/joy -->
     <group if="$(arg joy)">
@@ -16,7 +14,7 @@
             <!--<param name="coalesce_interval" value="0.01" />-->
         </node>
 
-<!--        <node respawn="true" pkg="robot_snake_simulation" name="control" type="Node2.py" output="screen" />-->
+        <node respawn="true" pkg="robot_snake_simulation" name="control" type="Node2.py" output="screen" />
 
     </group>
 
