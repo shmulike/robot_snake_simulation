@@ -6,7 +6,9 @@ import numpy as np
 import rospy
 from sensor_msgs.msg import Joy
 from std_msgs.msg import Float64, Float64MultiArray
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Twist, Transform, Wrench
+from sensor_msgs.msg import MultiDOFJointState
+#from geometry_msgs.msg import Transform
 import numpy as np
 from Robot import Robot
 import matplotlib.pyplot as plt
@@ -59,7 +61,11 @@ class Node:
 
         self.robot = Robot()
 
+        #self.joint_ang[] = Twist()
+        self.joint_cmd = MultiDOFJointState()
+
         rospy.Subscriber('/joy', Joy, self.joy_update)
+        self.pub_joint_cmd = rospy.Publisher('/robot_snake_sim/joint_ang_cmd/', MultiDOFJointState, queue_size=10)
 
         ### initiate plot
         fig = plt.figure()
@@ -156,6 +162,31 @@ class Node:
             # self.robot.move_head(thetaY=data.axes[1], thetaZ=data.axes[0], forward=data.axes[4])
             # self.robot.move_head(thetaY=data.axes[1], thetaZ=data.axes[0], forward=data.axes[4])
             self.robot.move_head(thetaY=data.axes[1], thetaZ=data.axes[0], forward=data.axes[4])
+
+            CMD = MultiDOFJointState()
+
+            trans_i = Transform()
+            trans_i.translation.x = self.robot.joint_cmd[0]
+            twist_i = Twist()
+            wrench_i = Wrench()
+            CMD.transforms = [trans_i]
+            CMD.twist = [twist_i]
+            CMD.wrench = [wrench_i]
+
+            for i in range(self._link_N):
+                trans_i = Transform()
+                trans_i.rotation.z = self.robot.joint_ang[i*2]
+                trans_i.rotation.y = self.robot.joint_ang[i*2+1]
+                CMD.transforms.append(trans_i)
+
+                twist_i = Twist()
+                CMD.twist.append(twist_i)
+
+                wrench_i = Wrench()
+                CMD.wrench.append(wrench_i)
+
+            self.pub_joint_cmd.publish(CMD)
+
 
 
         if data.buttons[2] == 1:

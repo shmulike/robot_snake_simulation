@@ -7,6 +7,8 @@ from math import pi, sqrt
 import scipy.interpolate as sc  # interp1d, CubicSpline, splprep, splev
 from timeit import default_timer as timer
 
+# add angle limit to head move
+# publish joint positions(12+1) and angles (12*2+1)
 
 class Robot:
     def __init__(self, link_N = 12, link_L = 160, thetaYstep=.01, thetaZstep=.01, forwardStep=2):
@@ -38,7 +40,6 @@ class Robot:
         self.joint_cmd = []
         self.joint_pos_recon = []
         self.update_head_axis()
-
 
 
         # Update joint poses
@@ -73,12 +74,14 @@ class Robot:
             # time_start_1 = timer()
             self.split_curve()
             # time_start_2 = timer()
-            # self.calc_joint_angles()
+            self.calc_joint_angles()
+            # print(self.joint_cmd)
             # time_start_3 = timer()
             # self.recontract_joints_pos()
             # time_end = timer()
             # print("Time: curve {:3.3f}\tangles {:3.3f}\trecontract {:3.3f}".format((time_start_2-time_start_1)*10e3, (time_start_3-time_start_2)*10e3, (time_end-time_start_3)*10e3))
             # print(self.joint_pos_recon[0, :])
+
 
     def update_head_axis(self):
         head_X_size = 200
@@ -208,7 +211,8 @@ class Robot:
 
 
     def calc_joint_angles(self):
-        self.joint_cmd = self.joint_pos[0, 0] ##- self.x_start
+        # self.joint_cmd = self.joint_pos[0, 0] ##- self.x_start
+        self.joint_ang = []
         R = self.RzRyRd(y=0, z=0, d=self.joint_pos[0, 0])
         # vec_len = 1000
         # vx = np.array([[vec_len], [0], [0], [1]])
@@ -235,8 +239,9 @@ class Robot:
             thetaY = -np.arctan2(z_val, sqrt(x_val**2 + y_val**2))
 
             R = np.dot(R, self.RzRyRd(z=thetaZ, y=thetaY, d=self.link_L))
+            self.joint_ang = np.append(self.joint_ang, [thetaZ, thetaY])
 
-            self.joint_cmd = np.append(self.joint_cmd, [thetaZ, thetaY])
+        self.joint_cmd = np.append(self.joint_pos[0, 0], self.joint_ang)
             # print("Angles: Y {:.2f}\tZ {:.2f}".format(np.rad2deg(thetaY), np.rad2deg(thetaZ)))
 
 
