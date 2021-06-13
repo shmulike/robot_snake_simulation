@@ -56,7 +56,8 @@ This package requires the next ROS packages to be installed:
 
 ```sh
 sudo apt-get install rosserial
-sudo apt-get install ros-noetic-joy
+$ sudo apt-get install ros-noetic-joy
+
 
 ```
 

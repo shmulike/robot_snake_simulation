@@ -17,8 +17,8 @@ class Robot:
         self.thetaYstep = thetaYstep
         self.thetaZstep = thetaZstep
         self.forwardStep = forwardStep
-        self.epsilon = 0.1
-        self.iter_max = 25
+        self.epsilon = 0.01
+        self.iter_max = 30
 
         self.v0 = np.array([[0], [0], [0], [1]])
         self.v_end = np.array([[self.link_L], [0], [0], [1]])
@@ -35,7 +35,7 @@ class Robot:
         x = np.array([np.linspace(self.x_start, 0, 100)])
         y = z = np.zeros((1, x.shape[1]))
         self.path = np.vstack((x, y, z))
-        self.path = np.fliplr(self.path)
+        # self.path = np.fliplr(self.path)
 
         self.joint_cmd = []
         self.joint_pos_recon = []
@@ -70,9 +70,10 @@ class Robot:
         head_origin = self.update_head_axis()
 
         if (forward>0):
-            self.path = np.hstack((head_origin, self.path))
+            # self.path = np.hstack((head_origin, self.path))
+            self.path = np.hstack((self.path, head_origin))
             # time_start_1 = timer()
-            self.split_curve()
+            self.split_curve_3()
             # time_start_2 = timer()
             self.calc_joint_angles()
             # print(self.joint_cmd)
@@ -81,6 +82,10 @@ class Robot:
             # time_end = timer()
             # print("Time: curve {:3.3f}\tangles {:3.3f}\trecontract {:3.3f}".format((time_start_2-time_start_1)*10e3, (time_start_3-time_start_2)*10e3, (time_end-time_start_3)*10e3))
             # print(self.joint_pos_recon[0, :])
+
+        # Continius msg publish
+        # self.split_curve_3()
+        # self.calc_joint_angles()
 
 
     def update_head_axis(self):
@@ -126,16 +131,23 @@ class Robot:
 
 
     def split_curve(self):
-        self.joint_pos = self.path[:, 0].reshape(3, 1)
-        tck, u = sc.splprep(self.path, k=2, s=0)
+        # Bisection method
+        # reverse the path matrix to be end o start
+        path = np.fliplr(self.path)
 
-        # b = 1
+
+        self.joint_pos = path[:, 0].reshape(3, 1)
+        tck, u = sc.splprep(path, k=2, s=0)
+
+        b = c = 1
+        c_pre = 0
         a = 0
-        # error_avg = 0
+        error_avg = 0
         prev_pos = self.joint_pos
+        iter_count_avrg = 0
         for i in range(self.link_N-1):
             iter_count = 0
-            b = 1
+            # b = 1
             error = self.epsilon + 1
             while np.abs(error) > self.epsilon and iter_count < self.iter_max:
                 iter_count += 1
@@ -150,12 +162,19 @@ class Robot:
                 else:
                     b = c
             a = c
+            b = c + 4*(c - c_pre)
+            c_pre = c
 
             temp_pos = np.asarray([temp_pos]).T
             self.joint_pos = np.hstack((self.joint_pos, temp_pos))
             prev_pos = temp_pos
-            # error_avg += np.abs(error)
-        # print("Average error: {:.7f}".format(error_avg/(self.link_N-1)))
+            error_avg += np.abs(error)
+
+            iter_count_avrg += iter_count
+            print("{}, ".format(iter_count), end='')        # Debug: Print number iterations for each joint position
+        iter_count_avrg /= self.link_N-1
+        error_avg /= self.link_N - 1
+        print("avrg: {:.2f}\tAverage error: {:.7f}".format(iter_count_avrg, error_avg))     # Debug: Print average numberof  iterations and average link length error
 
         # Add the end link position to the plot
         self.joint_pos = np.fliplr(self.joint_pos)
@@ -167,37 +186,47 @@ class Robot:
 
         # print( (timer()-time1)*10e3)
 
-    def split_curve2(self):
-        self.joint_pos = self.path[:, 0].reshape(3, 1)
-        tck, u = sc.splprep(self.path, k=2, s=0)
+    def split_curve_3(self):
+        # Secant method
+        # reverse the path matrix to be end o start
+        path = np.fliplr(self.path)
 
-        # b = 1
-        a = 0
-        # error_avg = 0
+
+        self.joint_pos = path[:, 0].reshape(3, 1)
+        tck, u = sc.splprep(path, k=2, s=0)
+
+        x0 = x2 = x1_pre = 0
+        x1 = 1
+        error_avg = 0
         prev_pos = self.joint_pos
+        iter_count_avrg = 0
         for i in range(self.link_N-1):
+
             iter_count = 0
-            b = 1
             error = self.epsilon + 1
             while np.abs(error) > self.epsilon and iter_count < self.iter_max:
                 iter_count += 1
-                c = (a+b)/2
-                # temp_pos = np.asarray([sc.splev(c, tck)]).T
-                temp_pos = sc.splev(c, tck)
+                f_x0 = self.link_L - self.norm2(sc.splev(x0, tck), prev_pos)
+                f_x1 = self.link_L - self.norm2(sc.splev(x1, tck), prev_pos)
+                x2 = x1 - f_x1 * (x1 - x0) / (f_x1 - f_x0)
+                x0, x1 = x1, x2
 
-                # error = self.link_L - self.norm(temp_pos - prev_pos)
+                temp_pos = sc.splev(x2, tck)
                 error = self.link_L - self.norm2(temp_pos, prev_pos)
-                if error > 0:
-                    a = c
-                else:
-                    b = c
-            a = c
+            x0 = x2
+            x1 = x2 + 3*(x2-x1_pre)
+            x1_pre = x2
 
             temp_pos = np.asarray([temp_pos]).T
             self.joint_pos = np.hstack((self.joint_pos, temp_pos))
             prev_pos = temp_pos
-            # error_avg += np.abs(error)
-        # print("Average error: {:.7f}".format(error_avg/(self.link_N-1)))
+            error_avg += np.abs(error)
+
+            iter_count_avrg += iter_count
+            print("{}, ".format(iter_count), end='')        # Debug: Print number iterations for each joint position
+        iter_count_avrg /= self.link_N-1
+        error_avg /= self.link_N - 1
+        print("avrg: {:.2f}\tAverage error: {:.7f}".format(iter_count_avrg, error_avg))     # Debug: Print average numberof  iterations and average link length error
 
         # Add the end link position to the plot
         self.joint_pos = np.fliplr(self.joint_pos)
@@ -208,7 +237,6 @@ class Robot:
         # print("Debug: split_curve: link mean length: {:.4f}\tAverage iterations: {:.1f}.".format(link_len.mean(), iter_count/self.link_N))
 
         # print( (timer()-time1)*10e3)
-
 
     def calc_joint_angles(self):
         # self.joint_cmd = self.joint_pos[0, 0] ##- self.x_start
@@ -244,6 +272,8 @@ class Robot:
         self.joint_cmd = np.append(self.joint_pos[0, 0], self.joint_ang)
             # print("Angles: Y {:.2f}\tZ {:.2f}".format(np.rad2deg(thetaY), np.rad2deg(thetaZ)))
 
+    def calc_head_angles(self):
+        # Recalculate head movement only
 
     def recontract_joints_pos(self):
         R = self.RzRyRd(z=0, y=0, d=self.joint_cmd[0])
