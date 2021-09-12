@@ -1,0 +1,108 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="debug" default="false"/>
+    <arg name="joy" default="true"/>
+    <arg name="paused" default="false"/>
+    <arg name="use_sim_time" default="true"/>
+    <arg name="gui" default="true"/>
+    <arg name="headless" default="false"/>
+    <arg name="model" default="$(find robot_snake_simulation/urdf/snake_12.xacro"/>
+
+  <!-- Launch Gazebo  -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="debug" value="$(arg debug)" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+    <arg name="headless" value="$(arg headless)"/>
+  </include>
+
+  <!--<param name="robot_description" command="$(find xacro)/xacro.py '$(find robot_snake_simulation)/urdf/snake_10.xacro'" />-->
+  <param name="robot_description" command="$(find xacro)/xacro $(find robot_snake_simulation)/urdf/snake_12.xacro" />
+
+  <!-- Load joint controller configurations from YAML file to parameter server -->
+  <rosparam file="$(find robot_snake_simulation)/config/control.yaml" command="load"/>
+
+ <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+	args="-urdf -model snake_12 -param robot_description"/>
+
+  <!-- convert joint states to TF transforms for rviz, etc -->
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" respawn="true" output="screen">
+        <remap from="/joint_states" to="/robot_snake_sim/joint_states" />
+        <!--
+        <remap from="/tf" to="/robot_snake_sim/tf" />
+        <remap from="/tf_static" to="/robot_snake_sim/tf_static" />
+        -->
+    </node>
+
+<!--  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" output="screen">-->
+<!--      <remap from="/joint_states" to="/robot_snake_sim/joint_states" />-->
+<!--      &lt;!&ndash;-->
+<!--      <remap from="/tf" to="/robot_snake_sim/tf" />-->
+<!--      <remap from="/tf_static" to="/robot_snake_sim/tf_static" />-->
+<!--      &ndash;&gt;-->
+<!--  </node>-->
+
+
+  <!-- load the controllers -->
+  <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+	output="screen" ns="/snake_12" args="
+            linear_position_controller
+			joint1_1_position_controller
+            joint1_2_position_controller
+			joint2_1_position_controller
+            joint2_2_position_controller
+            joint3_1_position_controller
+            joint3_2_position_controller
+            joint4_1_position_controller
+            joint4_2_position_controller
+			joint5_1_position_controller
+            joint5_2_position_controller
+			joint6_1_position_controller
+            joint6_2_position_controller
+		    joint7_1_position_controller
+            joint7_2_position_controller
+			joint8_1_position_controller
+            joint8_2_position_controller
+            joint9_1_position_controller
+            joint9_2_position_controller
+            joint10_1_position_controller
+            joint10_2_position_controller
+            joint11_1_position_controller
+            joint11_2_position_controller
+            joint12_1_position_controller
+            joint12_2_position_controller"/>
+
+    <!-- joy node -->
+    <!-- http://wiki.ros.org/joy -->
+    <group if="$(arg joy)">
+        <node respawn="true" pkg="joy" type="joy_node" name="joy_control" >
+            <param name="dev" type="string" value="/dev/input/js0" />
+            <param name="deadzone" value="0.12" />
+            <param name="autorepeat_rate" value="100" />
+            <!--<param name="coalesce_interval" value="0.01" />-->
+        </node>
+
+        <!--
+        <node respawn="true" pkg="robot_snake_simulation" name="control" type="Node2.py" output="screen" />
+        -->
+
+    </group>
+
+
+
+  <!--
+  <node respawn="true" pkg="robot_snake_1" name="joy_listener" type="joy_listener.py"/>
+  -->
+
+    <!--
+  <node respawn="true" pkg="robot_snake_1" name="joint_CMD_test_2" type="joint_CMD_test_2.py" output="screen"/>
+-->
+
+  <!--
+    <node name="control" pkg="robot_snake_1" type="control.py"
+	 output="screen">
+  </node>
+  -->
+
+</launch>

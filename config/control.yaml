@@ -1,0 +1,121 @@
+snake_10:
+  # Publish all joint states -----------------------------------
+  joint_state_controller:
+    type: joint_state_controller/JointStateController
+    publish_rate: 50  
+  
+  # Position Controllers ---------------------------------------
+  linear_position_controller:
+    type: position_controllers/JointPositionController
+    joint: linear1
+    pid: {p: 100.0, i: 0.01, d: 10.0, i_clamp: 80} #, i_clamp: 10
+    # pid: {p: 100.0, i: 0.01, d: 10.0}
+
+  joint1_1_position_controller:
+    type: position_controllers/JointPositionController
+    joint: joint_fake_1
+    pid: {p: 100.0, i: 0.01, d: 10.0}
+  joint1_2_position_controller:
+    type: position_controllers/JointPositionController
+    joint: joint_1
+    pid: {p: 100.0, i: 0.01, d: 10.0}
+
+  joint2_1_position_controller:
+    type: position_controllers/JointPositionController
+    joint: joint_fake_2
+    pid: {p: 100.0, i: 0.01, d: 10.0}
+  joint2_2_position_controller:
+    type: position_controllers/JointPositionController
+    joint: joint_2
+    pid: {p: 100.0, i: 0.01, d: 10.0}
+
+  joint3_1_position_controller:
+    type: position_controllers/JointPositionController
+    joint: joint_fake_3
+    pid: {p: 100.0, i: 0.01, d: 10.0}
+  joint3_2_position_controller:
+    type: position_controllers/JointPositionController
+    joint: joint_3
+    pid: {p: 100.0, i: 0.01, d: 10.0}
+
+  joint4_1_position_controller:
+    type: position_controllers/JointPositionController
+    joint: joint_fake_4
+    pid: {p: 100.0, i: 0.01, d: 10.0}
+  joint4_2_position_controller:
+    type: position_controllers/JointPositionController
+    joint: joint_4
+    pid: {p: 100.0, i: 0.01, d: 10.0}
+
+  joint5_1_position_controller:
+    type: position_controllers/JointPositionController
+    joint: joint_fake_5
+    pid: {p: 100.0, i: 0.01, d: 10.0}
+  joint5_2_position_controller:
+    type: position_controllers/JointPositionController
+    joint: joint_5
+    pid: {p: 100.0, i: 0.01, d: 10.0}
+
+  joint6_1_position_controller:
+    type: position_controllers/JointPositionController
+    joint: joint_fake_6
+    pid: {p: 100.0, i: 0.01, d: 10.0}
+  joint6_2_position_controller:
+    type: position_controllers/JointPositionController
+    joint: joint_6
+    pid: {p: 100.0, i: 0.01, d: 10.0}
+
+  joint7_1_position_controller:
+    type: position_controllers/JointPositionController
+    joint: joint_fake_7
+    pid: {p: 100.0, i: 0.01, d: 10.0}
+  joint7_2_position_controller:
+    type: position_controllers/JointPositionController
+    joint: joint_7
+    pid: {p: 100.0, i: 0.01, d: 10.0}
+
+  joint8_1_position_controller:
+    type: position_controllers/JointPositionController
+    joint: joint_fake_8
+    pid: {p: 100.0, i: 0.01, d: 10.0}
+  joint8_2_position_controller:
+    type: position_controllers/JointPositionController
+    joint: joint_8
+    pid: {p: 100.0, i: 0.01, d: 10.0}
+
+  joint9_1_position_controller:
+    type: position_controllers/JointPositionController
+    joint: joint_fake_9
+    pid: {p: 100.0, i: 0.01, d: 10.0}
+  joint9_2_position_controller:
+    type: position_controllers/JointPositionController
+    joint: joint_9
+    pid: {p: 100.0, i: 0.01, d: 10.0}
+
+  joint10_1_position_controller:
+    type: position_controllers/JointPositionController
+    joint: joint_fake_10
+    pid: {p: 100.0, i: 0.01, d: 10.0}
+  joint10_2_position_controller:
+    type: position_controllers/JointPositionController
+    joint: joint_10
+    pid: {p: 100.0, i: 0.01, d: 10.0}
+  
+  joint11_1_position_controller:
+    type: position_controllers/JointPositionController
+    joint: joint_fake_11
+    pid: {p: 100.0, i: 0.01, d: 10.0}
+  joint11_2_position_controller:
+    type: position_controllers/JointPositionController
+    joint: joint_11
+    pid: {p: 100.0, i: 0.01, d: 10.0}
+  
+  joint12_1_position_controller:
+    type: position_controllers/JointPositionController
+    joint: joint_fake_12
+    pid: {p: 100.0, i: 0.01, d: 10.0}
+  joint12_2_position_controller:
+    type: position_controllers/JointPositionController
+    joint: joint_12
+    pid: {p: 100.0, i: 0.01, d: 10.0}
+    
