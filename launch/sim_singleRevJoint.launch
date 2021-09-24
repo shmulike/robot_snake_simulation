@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="debug" default="false"/>
+    <arg name="joy" default="true"/>
+
+
+    <!-- joy node -->
+    <!-- http://wiki.ros.org/joy -->
+    <group if="$(arg joy)">
+        <node respawn="true" pkg="joy" type="joy_node" name="joy_control" >
+            <param name="dev" type="string" value="/dev/input/js0" />
+            <param name="deadzone" value="0.12" />
+            <param name="autorepeat_rate" value="100" />
+            <!--<param name="coalesce_interval" value="0.01" />-->
+        </node>
+
+        <node respawn="true" pkg="robot_snake_simulation" name="control" type="Node2_singleRevJoint.py" output="screen" />
+
+    </group>
+
+
+
+  <!--
+  <node respawn="true" pkg="robot_snake_1" name="joy_listener" type="joy_listener.py"/>
+  -->
+
+    <!--
+  <node respawn="true" pkg="robot_snake_1" name="joint_CMD_test_2" type="joint_CMD_test_2.py" output="screen"/>
+-->
+
+  <!--
+    <node name="control" pkg="robot_snake_1" type="control.py"
+	 output="screen">
+  </node>
+  -->
+
+</launch>
