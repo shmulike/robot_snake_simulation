@@ -27,9 +27,10 @@ class Robot:
 
         self.v0 = np.array([[0], [0], [0], [1]])
         self.v_end = np.array([[self.link_L], [0], [0], [1]])
-        self.A_head_1 = np.eye(4)
-        self.A_head_2 = np.eye(4)
-        self.head_axis = []
+        self.A_head_1 = self.RzRyRd()
+        self.A_head_2 = np.dot(self.A_head_1, self.RzRyRd(d=self.link_L))
+        self.head_axis_1 = []
+        self.head_axis_2 = []
 
         self.vec_len = 1000
         self.vx = np.array([[self.vec_len], [0], [0], [1]])
@@ -48,7 +49,9 @@ class Robot:
         self.update_head_axis()
 
         # Update joint poses
-        self.joint_pos = np.arange(self.x_start, self.link_L+1, self.link_L)
+        self.joint_pos = [np.arange(self.x_start, self.link_L+1, self.link_L),
+                          np.arange(self.x_start, self.link_L + 1, self.link_L),
+                          np.arange(self.x_start, self.link_L + 1, self.link_L)]
         #self.split_curve_3()
         #self.joint_ang, self.joint_cmd = self.calc_joint_angles(self.joint_pos)
         #self.recontract_joints_pos()
@@ -59,31 +62,28 @@ class Robot:
     #     # print("move\t{:.2f}:{:.2f}".format(thetaY, thetaZ))
     #     self.A_head = np.dot(self.A_head, self.RyRzRd(thetaY, thetaZ, 0))
     #     self.update_head_axis()
-        self.A_head_1 = np.eye(4)
-        self.A_head_2 = np.eye(4)
+
+        self.thetaZ_record = 0
 
 
     def move_head(self, thetaY=0, thetaZ=0, forward=0):
         # Scale the joysticl movement by scale factor: thetaYstep, thetaZstep
         print("thetaY: ", np.round(thetaY, 2), "\tthetaZ: ", np.round(thetaZ, 2), "\tforward: ", np.round(forward, 2))
         thetaY *= self.thetaYstep
-        thetaZ *= self.thetaZstep
-
+        #thetaZ *= self.thetaZstep
+        self.thetaZ_record += thetaZ*self.thetaZstep
         # print(self.joint_pos[0][0])
         head_origin = None
         # just turn the head
-        if (forward ==0 and self.joint_pos[0][0] <= 0):
-            self.A_head_1 = np.dot(self.A_head_1, self.RzRyRd(z=0, y=thetaY, d=forward))
-            self.A_head_2 = np.dot(self.A_head_1, self.RzRyRd(z=thetaZ, y=0, d=forward))
-            head_origin = self.update_head_axis()
 
         if (forward >= 0 and self.joint_pos[0][0] <= 0):
             forward *= self.forwardStep
-            #self.A_head_1 = np.dot(self.A_head, self.RzRyRd(z=0, y=thetaY, d=forward))
-            #self.A_head_2 = np.dot(self.A_head, self.RzRyRd(z=thetaZ, y=0, d=forward))
-            head_origin = self.update_head_axis()
+            self.A_head_1 = np.dot(self.A_head_1, self.RzRyRd(y=thetaY))
+            self.A_head_2 = np.dot(self.A_head_1, np.dot(self.RzRyRd(d=self.link_L), self.RzRyRd(z=self.thetaZ_record)))
+            #self.A_head_2 = np.dot(self.A_head_1, np.dot(self.RzRyRd(z=0, y=0, d=self.link_L), self.RzRyRd(z=thetaZ, d=forward)))
+            head_origin_1, head_origin_2 = self.update_head_axis()
             if (forward > 0):
-                self.path = np.hstack((self.path, head_origin))
+                self.path = np.hstack((self.path, head_origin_2))
         else:
             # How many "steps" (points along the path) go back
             backwards = int(np.floor(forward * self.backSteps))
@@ -98,7 +98,7 @@ class Robot:
             # update head position and orientation
             # self.A_head = self.path[:, -1].reshape((4,1 ))
 
-        print("head:\n", np.round(self.A_head, 2), "\n")
+        print("head1:\n", np.round(self.A_head_1, 2), "\nhead2:\n", np.round(self.A_head_2, 2), "\n")
         # Update head position relative to world-system
 
         # if (forward>0):
@@ -119,7 +119,7 @@ class Robot:
     def update_head_axis(self):
         # updated to single revolve joints
         head_X_size = 400
-        head_YZ_size = 400
+        head_YZ_size = 200
 
         # this is the origin of head 1 = Y rotation
         origin_1 = np.dot(self.A_head_1, np.array([[0], [0], [0], [1]]))
@@ -131,7 +131,7 @@ class Robot:
         headZAxis_1 = np.hstack((origin_1, z_p_1))  # Vector of head Z axis coordinate system
         self.head_axis_1 = np.stack((headXAxis_1, headYAxis_1, headZAxis_1))[0:3, :]
 
-        # this is the origin of head 1 = Z rotation
+        # this is the origin of head 2 = Z rotation
         origin_2 = np.dot(self.A_head_2, np.array([[0], [0], [0], [1]]))
         x_p_2 = np.dot(self.A_head_2, np.array([[head_X_size], [0], [0], [1]]))
         y_p_2 = np.dot(self.A_head_2, np.array([[0], [head_YZ_size], [0], [1]]))
@@ -140,14 +140,14 @@ class Robot:
         headYAxis_2 = np.hstack((origin_2, y_p_2))  # Vector of head Y axis coordinate system
         headZAxis_2 = np.hstack((origin_2, z_p_2))  # Vector of head Z axis coordinate system
         self.head_axis_2 = np.stack((headXAxis_2, headYAxis_2, headZAxis_2))[0:3, :]
-
+        #print("Head 1 origin:\n", origin_1, "\nHead 2 origin:\n", origin_2)
         return origin_1[0:3, :], origin_2[0:3, :]
 
     def print_head(self):
         p_head = np.dot(self.A_head, self.v0)
         # print("Robot head position: {}".format(p_head))
 
-    def RzRyRd(self, z, y, d):
+    def RzRyRd(self, z=0, y=0, d=0):
         sz = np.sin(z)
         cz = np.cos(z)
         sy = np.sin(y)
@@ -202,7 +202,7 @@ class Robot:
 
         # Add the end link position to the plot
         self.joint_pos = np.fliplr(self.joint_pos)
-        end_effctor_pos = np.dot(self.A_head, self.v_end)[0:3, :]
+        end_effctor_pos = np.dot(self.A_head_2, self.v_end)[0:3, :]
         self.joint_pos = np.hstack((self.joint_pos, end_effctor_pos))
         # link_len = np.diff(self.joint_pos, axis=1)
         # link_len = np.linalg.norm(link_len, axis=0)

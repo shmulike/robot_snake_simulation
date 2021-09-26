@@ -88,9 +88,15 @@ class Node:
         for color, line_1, line_2 in zip(axes_color, head_lines_1, head_lines_2):
             line_1.set_color(color)
             line_2.set_color(color)
+
+        # for color, line_1 in zip(axes_color, head_lines_1):
+        #     line_1.set_color(color)
+        # for color, line_2 in zip(axes_color, head_lines_2):
+        #     line_2.set_color(color)
+
         path = self.robot.path
 
-        path_lines, = ax.plot(path[0, :], path[1, :], path[2, :], 'k.', markersize=0.1)
+        path_lines, = ax.plot(path[0, :], path[1, :], path[2, :], 'k.', markersize=0.01)
         joint_lines, = ax.plot(path[0, :], path[1, :], path[2, :], '--or')
         # joint_recon_lines, = ax.plot(path[0, :], path[1, :], path[2, :], 'sg')
 
@@ -234,25 +240,27 @@ class Node:
         # ax.plot_surface(X, Y, Z)
         return X,Y,Z
 
-    # def update_lines(self, frames, head_lines, path_lines, joint_lines, joint_recon_lines):
+
     def update_lines(self, frames, head_lines_1, head_lines_2, path_lines, joint_lines):
+
         dataLines_1 = self.robot.head_axis_1
-        for line, data in zip(head_lines_1, dataLines_1):
-            line.set_data(data[0:2, :])
-            line.set_3d_properties(data[2, :])
+        print(dataLines_1)
+        for line_1, data_1 in zip(head_lines_1, dataLines_1):
+            line_1.set_data(data_1[0:2, :])
+            line_1.set_3d_properties(data_1[2, :])
 
         dataLines_2 = self.robot.head_axis_2
-        for line, data in zip(head_lines_2, dataLines_2):
-            line.set_data(data[0:2, :])
-            line.set_3d_properties(data[2, :])
+        for line_2, data_2 in zip(head_lines_2, dataLines_2):
+            line_2.set_data(data_2[0:2, :])
+            line_2.set_3d_properties(data_2[2, :])
 
         path = self.robot.path
         path_lines.set_data(path[0:2, :])
         path_lines.set_3d_properties(path[2, :])
 
         joint_pos = self.robot.joint_pos
-        joint_lines.set_data(joint_pos[0:2, :])
-        joint_lines.set_3d_properties(joint_pos[2, :])
+        # joint_lines.set_data(joint_pos[0:2, :])
+        # joint_lines.set_3d_properties(joint_pos[2, :])
 
         # joint_pos_recon = self.robot.joint_pos_recon
         # joint_recon_lines.set_data(joint_pos_recon[0:2, :])
@@ -260,7 +268,6 @@ class Node:
 
 
         return head_lines_1, head_lines_2, path_lines
-
 
 
 if __name__ == '__main__':

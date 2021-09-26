@@ -77,7 +77,6 @@ class Node:
         # data = [self.Gen_RandLine(25, 3)]
         # print(data)
 
-
         data = self.robot.head_axis
         # Creating fifty line objects.
         # NOTE: Can't pass empty arrays into 3d version of plot()
@@ -101,8 +100,8 @@ class Node:
         ax.set_title('3D Test')
 
         # line_ani = animation.FuncAnimation(fig, func=self.update_lines, frames=100, fargs=(head_lines, path_lines, joint_lines, joint_recon_lines), interval=1, blit=False)
-        # line_ani = animation.FuncAnimation(fig, func=self.update_lines, frames=100, fargs=(head_lines, path_lines, joint_lines), interval=5, blit=False)
-        # plt.show()
+        line_ani = animation.FuncAnimation(fig, func=self.update_lines, frames=100, fargs=(head_lines, path_lines, joint_lines), interval=5, blit=False)
+        plt.show()
 
         '''
         self.pub_vec = [rospy.Publisher('/snake_10/linear_position_controller/command', Float64, queue_size=10),
@@ -234,6 +233,7 @@ class Node:
     # def update_lines(self, frames, head_lines, path_lines, joint_lines, joint_recon_lines):
     def update_lines(self, frames, head_lines, path_lines, joint_lines):
         dataLines = self.robot.head_axis
+        print(dataLines)
         for line, data in zip(head_lines, dataLines):
             line.set_data(data[0:2, :])
             line.set_3d_properties(data[2, :])
