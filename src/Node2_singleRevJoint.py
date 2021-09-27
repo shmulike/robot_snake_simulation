@@ -53,10 +53,10 @@ class Node:
         self.joint_cmd = MultiDOFJointState()
 
     def __init__(self):
-        np.random.seed(19680801)
+        # np.random.seed(19680801)
 
         self._dtheta = 0.05
-        self._dx = 10
+        self._dx = 0.1
         self._link_L = 160
         self._link_N = 10
         self._N = 200
@@ -76,7 +76,6 @@ class Node:
         ax.view_init(elev=35, azim=-150)
         # data = [self.Gen_RandLine(25, 3)]
         # print(data)
-
 
         headAxis_1 = self.robot.head_axis_1
         headAxis_2 = self.robot.head_axis_2
@@ -175,28 +174,28 @@ class Node:
             # self.robot.move_head(thetaY=data.axes[1], thetaZ=data.axes[0], forward=data.axes[4])
             self.robot.move_head(thetaY=data.axes[1], thetaZ=data.axes[0], forward=data.axes[4])
 
-            CMD = MultiDOFJointState()
-
-            trans_i = Transform()
-            trans_i.translation.x = self.robot.joint_cmd[0]
-            twist_i = Twist()
-            wrench_i = Wrench()
-            CMD.transforms = [trans_i]
-            CMD.twist = [twist_i]
-            CMD.wrench = [wrench_i]
-
-            for i in range(self._link_N):
-                trans_i = Transform()
-                trans_i.rotation.z = self.robot.joint_ang[i*2]
-                trans_i.rotation.y = self.robot.joint_ang[i*2+1]
-                CMD.transforms.append(trans_i)
-
-                twist_i = Twist()
-                CMD.twist.append(twist_i)
-
-                wrench_i = Wrench()
-                CMD.wrench.append(wrench_i)
-            self.pub_joint_cmd.publish(CMD)
+            # CMD = MultiDOFJointState()
+            #
+            # trans_i = Transform()
+            # trans_i.translation.x = self.robot.joint_cmd[0]
+            # twist_i = Twist()
+            # wrench_i = Wrench()
+            # CMD.transforms = [trans_i]
+            # CMD.twist = [twist_i]
+            # CMD.wrench = [wrench_i]
+            #
+            # for i in range(self._link_N):
+            #     trans_i = Transform()
+            #     trans_i.rotation.z = self.robot.joint_ang[i*2]
+            #     trans_i.rotation.y = self.robot.joint_ang[i*2+1]
+            #     CMD.transforms.append(trans_i)
+            #
+            #     twist_i = Twist()
+            #     CMD.twist.append(twist_i)
+            #
+            #     wrench_i = Wrench()
+            #     CMD.wrench.append(wrench_i)
+            # self.pub_joint_cmd.publish(CMD)
 
 
 
@@ -244,7 +243,7 @@ class Node:
     def update_lines(self, frames, head_lines_1, head_lines_2, path_lines, joint_lines):
 
         dataLines_1 = self.robot.head_axis_1
-        print(dataLines_1)
+        # print(dataLines_1)
         for line_1, data_1 in zip(head_lines_1, dataLines_1):
             line_1.set_data(data_1[0:2, :])
             line_1.set_3d_properties(data_1[2, :])
@@ -254,13 +253,13 @@ class Node:
             line_2.set_data(data_2[0:2, :])
             line_2.set_3d_properties(data_2[2, :])
 
-        path = self.robot.path
-        path_lines.set_data(path[0:2, :])
-        path_lines.set_3d_properties(path[2, :])
+        # path = self.robot.path
+        # path_lines.set_data(path[0:2, :])
+        # path_lines.set_3d_properties(path[2, :])
 
         joint_pos = self.robot.joint_pos
-        # joint_lines.set_data(joint_pos[0:2, :])
-        # joint_lines.set_3d_properties(joint_pos[2, :])
+        joint_lines.set_data(joint_pos[0:2, :])
+        joint_lines.set_3d_properties(joint_pos[2, :])
 
         # joint_pos_recon = self.robot.joint_pos_recon
         # joint_recon_lines.set_data(joint_pos_recon[0:2, :])

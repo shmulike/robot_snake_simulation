@@ -14,10 +14,13 @@
             <!--<param name="coalesce_interval" value="0.01" />-->
         </node>
 
-        <node respawn="true" pkg="robot_snake_simulation" name="control" type="Node2_singleRevJoint.py" output="screen" />
+
 
     </group>
 
+    <group unless="$(arg debug)">
+        <node respawn="true" pkg="robot_snake_simulation" name="control" type="Node2_singleRevJoint.py" output="screen" />
+    </group>
 
 
   <!--

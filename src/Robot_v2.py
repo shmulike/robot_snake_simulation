@@ -90,10 +90,6 @@ class Robot:
         print("head:\n", np.round(self.A_head, 2), "\n")
         # Update head position relative to world-system
 
-        # if (forward>0):
-        #     # self.path = np.hstack((head_origin, self.path))
-        #     self.path = np.hstack((self.path, head_origin))
-
         # Continuous msg publish
         self.split_curve_3()
         if forward >= 0:
