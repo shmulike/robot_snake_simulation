@@ -46,6 +46,7 @@ class Robot:
         # self.path = np.fliplr(self.path)
 
         self.joint_cmd = []
+        self.joint_ang = np.zeros((1, self.link_N))
         self.joint_pos_recon = []
         self.update_head_axis()
 
@@ -73,18 +74,23 @@ class Robot:
         print("thetaY: ", np.round(thetaY, 2), "\tthetaZ: ", np.round(thetaZ, 2), "\tforward: ", np.round(forward, 2))
         thetaY *= self.thetaYstep
         self.thetaZ_record += thetaZ*self.thetaZstep
+        print(self.thetaZ_record)
         # print(self.joint_pos[0][0])
         head_origin = None
         # just turn the head
 
         if forward >= 0 and self.joint_pos[0][0] <= 0:
             forward *= self.forwardStep
-            self.A_head_1 = np.dot(self.A_head_1, self.RzRyRd(y=thetaY))
-            self.A_head_2 = np.dot(self.A_head_1, np.dot(self.RzRyRd(d=self.link_L), self.RzRyRd(z=self.thetaZ_record, d=forward)))
-            # self.A_head_2 = np.dot(self.A_head_1, np.dot(self.RzRyRd(z=0, y=0, d=self.link_L), self.RzRyRd(z=thetaZ, d=forward)))
+            # self.A_head_1 = np.dot(self.A_head_1, self.RzRyRd(y=thetaY))
+            self.A_head_1 = self.A_head_1 @ self.RzRyRd(y=thetaY)
+            # self.A_head_2 = np.dot(self.A_head_1, np.dot(self.RzRyRd(d=self.link_L), self.RzRyRd(z=self.thetaZ_record, d=forward)))
+            self.A_head_2 = self.A_head_1 @ self.RzRyRd(d=self.link_L) @ self.RzRyRd(z=self.thetaZ_record, d=forward)
             head_origin_1, head_origin_2 = self.update_head_axis()
             if forward > 0:
+                self.split_curve_3()
                 self.path = np.hstack((self.path, head_origin_2))
+                self.joint_ang, self.joint_cmd = self.calc_joint_angles(self.joint_pos)
+                self.thetaZ_record = self.joint_ang[0, -1]
         elif forward < 0:
             # forward < 0 == Going backwards
             # How many "steps" (points along the path) go back
@@ -104,9 +110,9 @@ class Robot:
         # Update head position relative to world-system
 
         # Continuous msg publish
-        self.split_curve_3()
 
-        if forward >= 0:
+
+        if forward > 0:
             self.joint_ang, self.joint_cmd = self.calc_joint_angles(self.joint_pos)
         else:
             temp = 0
@@ -238,12 +244,16 @@ class Robot:
             if i % 2 == 0:
                 # Odd joints 0,2,4,.. = Rotation axis is Y
                 theta = np.arctan2(z_val, x_val)
+                theta = self.wrap2pi(theta)
                 R = np.dot(R, self.RzRyRd(y=theta, d=self.link_L))  # Using forward kinematics and the calculated angles, go to the next joint
             else:
                 # Even joints 1,3,5,.. = Rotation axis is Z
                 theta = np.arctan2(y_val, x_val)
+                theta = self.wrap2pi(theta)
                 R = np.dot(R, self.RzRyRd(z=theta, d=self.link_L))  # Using forward kinematics and the calculated angles, go to the next joint
 
+            if i == self.link_N-2:
+                self.A_head_1 = np.dot(R, self.RzRyRd(d=-self.link_L))
             # thetaZ = np.arctan2(y_val, x_val)                               # Calculate the joint Z rotation angle
             # if abs(thetaZ) == np.pi:
             #     thetaZ = 0
@@ -253,7 +263,7 @@ class Robot:
             #     thetaY = 0
 
             joint_ang = np.append(joint_ang, theta)     # Update the joint_ang vector with the calculated angles
-        self.A_head_1 = np.dot(R, self.RzRyRd(d=-self.link_L))      # Update head_1 matrix using forward kinematics
+        # self.A_head_1 = np.dot(R, self.RzRyRd(d=-self.link_L))      # Update head_1 matrix using forward kinematics
         # self.A_head_1 = self.RzRyRd(d=jointPos[0, 0])
         # for i in range(len(joint_ang)-1):
         #     if i % 2 == 0:
@@ -303,45 +313,6 @@ class Robot:
         res = x1[0]*x2[0] + x1[1]*x2[1] + x1[2]*x2[2]
         return res[0]
 
-    def firstOrderDerivative(self, path, jointPos):
-        # dfx = (3*fx_i - 4*fx_i-1 + fx_i-2) / 2h
-        # dx = (3*path[0, -1] - 4*path[0, -2] + path[0, -3]) / abs(path[0, -3] - path[0, -1])
-        h = abs(path[0, -3] - path[0, -1])
-        x0 = path[0, -1]
-        y0 = path[1, -1]
-        z0 = path[2, -1]
-        my = (3*path[1, -1] - 4*path[1, -2] + path[1, -3]) / (2*h)
-        mz = (3*path[2, -1] - 4*path[2, -2] + path[2, -3]) / (2*h)
-
-        ny = y0-my*x0
-        nz = z0-mz*x0
-
-        A = 1 + my**2 + mz**2
-        B = -2*x0 + 2*my*(ny-y0) + 2*mz*(nz-z0)
-        C = x0**2 + (ny-y0)**2 + (nz-z0)**2 - self.link_L**2
-
-        # x1 = (-B + np.sqrt(B**2 - 4*A*C)) / (2*A)
-        x1 = (-B - np.sqrt(B**2 - 4*A*C)) / (2*A)
-        y1 = my*x1 + ny
-        z1 = mz*x1 + nz
-
-        print("x1:{:.2f}\ty1:{:.2f}\tz1:{:.2f}".format(x1, y1, z1))
-
-        # print("ny:{:.2f}\tnz:{:.2f}".format(ny, nz))
-        # print("x1:{:.2f}\tx2:{:.2f}".format(x1, x2))
-        # print("sqrt:{:.2f}".format(B**2 - 4*A*C))
-        # joint_ang, joint_cmd = self.calc_joint_angles(np.hstack((path, [[x1], [y1], [z1]]) ))
-        joint_ang, joint_cmd = self.calc_joint_angles(jointPos)
-
-        # R = self.RzRyRd(z=0, y=0, d=self.joint_pos[0, 0])
-        R = self.RzRyRd(z=0, y=0, d=joint_cmd[0])
-        for i in range(1, self.link_N):
-            print("i:{}\t x:{:.2f}".format(i, R[0, -1]))
-            R = np.dot(R, self.RzRyRd(z=joint_cmd[i * 2 - 1], y=joint_cmd[i * 2], d=self.link_L))
-
-        self.A_head = R
-        origin = self.update_head_axis()
-
     def findHeadNewPos(self, jointPos):
         joint_ang, joint_cmd = self.calc_joint_angles(jointPos)
         newHead_R = self.RzRyRd(z=0, y=0, d=joint_cmd[0])
@@ -351,5 +322,11 @@ class Robot:
         self.A_head = newHead_R
         origin = self.update_head_axis()
 
-
-
+    def wrap2pi(self, theta):
+        # return (theta + np.pi) % (2 * np.pi) - np.pi
+        if theta > 2*np.pi:
+            return theta - 2*np.pi
+        elif theta < 2*np.pi:
+            return theta + 2*np.pi
+        else:
+            return theta

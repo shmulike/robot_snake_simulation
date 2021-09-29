@@ -56,7 +56,7 @@ class Node:
         # np.random.seed(19680801)
 
         self._dtheta = 0.05
-        self._dx = 0.1
+        self._dx = 0.01
         self._link_L = 160
         self._link_N = 10
         self._N = 200
