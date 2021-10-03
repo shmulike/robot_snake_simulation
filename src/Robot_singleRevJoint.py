@@ -27,8 +27,8 @@ class Robot:
 
         self.v0 = np.array([[0], [0], [0], [1]])
         self.v_end = np.array([[self.link_L], [0], [0], [1]])
-        self.A_head_1 = self.RzRyRd(d=-self.link_L)
-        self.A_head_2 = self.RzRyRd()
+        self.A_head_1 = self.RzRyRd()
+        self.A_head_2 = self.RzRyRd(d=self.link_L)
         # self.A_head_2 = np.dot(self.A_head_1, self.RzRyRd(d=self.link_L))
         self.head_axis_1 = []
         self.head_axis_2 = []
@@ -42,7 +42,9 @@ class Robot:
         self.x_start = -(self.link_N-1)*self.link_L
         x = np.array([np.linspace(self.x_start, 0, 100)])
         y = z = np.zeros((1, x.shape[1]))
-        self.path = np.vstack((x, y, z))
+        self.path_      = np.vstack((x, y, z))
+        self.path_back  = np.vstack((x, y, z))
+        self.path_head  = []
         # self.path = np.fliplr(self.path)
 
         self.joint_cmd = []
@@ -87,8 +89,12 @@ class Robot:
             self.A_head_2 = self.A_head_1 @ self.RzRyRd(d=self.link_L) @ self.RzRyRd(z=self.thetaZ_record, d=forward)
             head_origin_1, head_origin_2 = self.update_head_axis()
             if forward > 0:
+                path_head_x = np.linspace(head_origin_1[0, 0], head_origin_2[0, 0])
+                path_head_y = np.linspace(head_origin_1[1, 0], head_origin_2[1, 0])
+                path_head_z = np.linspace(head_origin_1[2, 0], head_origin_2[2, 0])
+                self.path_head = np.vstack((path_head_x, path_head_y, path_head_z))
+                # self.path = np.hstack((self.path, head_origin_2))
                 self.split_curve_3()
-                self.path = np.hstack((self.path, head_origin_2))
                 self.joint_ang, self.joint_cmd = self.calc_joint_angles(self.joint_pos)
                 self.thetaZ_record = self.joint_ang[0, -1]
         elif forward < 0:
