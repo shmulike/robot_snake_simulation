@@ -17,6 +17,7 @@ class Robot:
     def __init__(self, link_N = 10, link_L = 160, thetaYstep=.01, thetaZstep=.01, forwardStep=2, backStep=3, rider_max=1000):
         self.link_N = link_N
         self.link_L = link_L
+        self.path_nodes_in_link = 10
         self.thetaYstep = thetaYstep
         self.thetaZstep = thetaZstep
         self.forwardStep = forwardStep
@@ -40,11 +41,11 @@ class Robot:
 
         # create initial path
         self.x_start = -(self.link_N-1)*self.link_L
-        x = np.array([np.linspace(self.x_start, 0, 100)])
+        x = np.array([np.linspace(self.x_start, 0, self.path_nodes_in_link*self.link_N)])
         y = z = np.zeros((1, x.shape[1]))
-        self.path_      = np.vstack((x, y, z))
-        self.path_back  = np.vstack((x, y, z))
-        self.path_head  = []
+        self.path = np.vstack((x, y, z))
+        self.path_back = np.vstack((x, y, z))
+        self.path_head = []
         # self.path = np.fliplr(self.path)
 
         self.joint_cmd = []
@@ -57,7 +58,7 @@ class Robot:
         # self.joint_pos = [np.arange(self.x_start, self.link_L+1, self.link_L),
         #                   np.zeros((1, self.link_N+1)),
         #                   np.zeros((1, self.link_N+1))]
-        self.split_curve_3()
+        self.joint_pos = self.split_curve_4(self.path, self.link_N, self.link_L, self.A_head_2)
         #self.joint_ang, self.joint_cmd = self.calc_joint_angles(self.joint_pos)
         #self.recontract_joints_pos()
 
@@ -75,7 +76,7 @@ class Robot:
         # Scale the joysticl movement by scale factor: thetaYstep, thetaZstep
         print("thetaY: ", np.round(thetaY, 2), "\tthetaZ: ", np.round(thetaZ, 2), "\tforward: ", np.round(forward, 2))
         thetaY *= self.thetaYstep
-        self.thetaZ_record += thetaZ*self.thetaZstep
+        self.thetaZ_record += thetaZ * self.thetaZstep
         print(self.thetaZ_record)
         # print(self.joint_pos[0][0])
         head_origin = None
@@ -87,16 +88,22 @@ class Robot:
             self.A_head_1 = self.A_head_1 @ self.RzRyRd(y=thetaY)
             # self.A_head_2 = np.dot(self.A_head_1, np.dot(self.RzRyRd(d=self.link_L), self.RzRyRd(z=self.thetaZ_record, d=forward)))
             self.A_head_2 = self.A_head_1 @ self.RzRyRd(d=self.link_L) @ self.RzRyRd(z=self.thetaZ_record, d=forward)
+
+            head_origin_2_temp = self.A_head_1 @ self.RzRyRd(d=self.link_L) @ self.RzRyRd(z=self.thetaZ_record) @ self.v0
             head_origin_1, head_origin_2 = self.update_head_axis()
             if forward > 0:
-                path_head_x = np.linspace(head_origin_1[0, 0], head_origin_2[0, 0])
-                path_head_y = np.linspace(head_origin_1[1, 0], head_origin_2[1, 0])
-                path_head_z = np.linspace(head_origin_1[2, 0], head_origin_2[2, 0])
-                self.path_head = np.vstack((path_head_x, path_head_y, path_head_z))
-                # self.path = np.hstack((self.path, head_origin_2))
-                self.split_curve_3()
+                # path_head_x = np.append(np.linspace(head_origin_1[0, 0], head_origin_2_temp[0, 0], 10), np.linspace(head_origin_2_temp[0, 0], head_origin_2[0, 0], 3))
+                # path_head_y = np.append(np.linspace(head_origin_1[1, 0], head_origin_2_temp[1, 0], 10), np.linspace(head_origin_2_temp[1, 0], head_origin_2[1, 0], 3))
+                # path_head_z = np.append(np.linspace(head_origin_1[2, 0], head_origin_2_temp[2, 0], 10), np.linspace(head_origin_2_temp[2, 0], head_origin_2[2, 0], 3))
+                # path_head = np.vstack((path_head_x, path_head_y, path_head_z))
+                path_head = np.vstack((np.append(np.linspace(head_origin_1[0, 0], head_origin_2_temp[0, 0], self.path_nodes_in_link), np.linspace(head_origin_2_temp[0, 0], head_origin_2[0, 0], 2)[1:]),
+                                       np.append(np.linspace(head_origin_1[1, 0], head_origin_2_temp[1, 0], self.path_nodes_in_link), np.linspace(head_origin_2_temp[1, 0], head_origin_2[1, 0], 2)[1:]),
+                                       np.append(np.linspace(head_origin_1[2, 0], head_origin_2_temp[2, 0], self.path_nodes_in_link), np.linspace(head_origin_2_temp[2, 0], head_origin_2[2, 0], 2)[1:])))
+
+                self.joint_pos = self.split_curve_4(np.hstack((self.path, path_head[:, 1:])), self.link_N, self.link_L, self.A_head_2)
+                self.path = np.hstack((self.path, self.joint_pos[:, -3].reshape(3, 1)))
                 self.joint_ang, self.joint_cmd = self.calc_joint_angles(self.joint_pos)
-                self.thetaZ_record = self.joint_ang[0, -1]
+                # self.thetaZ_record = self.joint_ang[-1]
         elif forward < 0:
             # forward < 0 == Going backwards
             # How many "steps" (points along the path) go back
@@ -169,18 +176,19 @@ class Robot:
                       [0,        0,  0,        1]])
         return R
 
-    def split_curve_3(self):
-        # Secant method
-        # reverse the path matrix to be end o start
-        path = np.fliplr(self.path)
 
-        self.joint_pos = path[:, 0].reshape(3, 1)
+    def split_curve_4(self, path, segment_N, segment_L, head_mat):
+        # Secant method
+        v_end = np.array([[segment_L], [0], [0], [1]])
+        path = np.fliplr(path)                  # reverse the path matrix to be "End to Start"
+
+        joints_pos = path[:, 0].reshape(3, 1)
         tck, u = sc.splprep(path, k=2, s=0)
 
         x0 = x2 = x1_pre = 0
         x1 = 1
         error_avg = 0
-        prev_pos = self.joint_pos
+        prev_pos = joints_pos
         iter_count_avrg = 0
         for i in range(self.link_N-1):
 
@@ -200,39 +208,40 @@ class Robot:
             x1_pre = x2
 
             temp_pos = np.asarray([temp_pos]).T
-            self.joint_pos = np.hstack((self.joint_pos, temp_pos))
+            joints_pos = np.hstack((joints_pos, temp_pos))
             prev_pos = temp_pos
             error_avg += np.abs(error)
 
             iter_count_avrg += iter_count
             # print("{}, ".format(iter_count), end='')        # Debug: Print number iterations for each joint position
-        iter_count_avrg /= self.link_N-1
-        error_avg /= self.link_N - 1
+        iter_count_avrg /= segment_N-1
+        error_avg /= segment_N - 1
         # print(datetime.now(), " ", end='')
         print("avrg: {:.2f}\tAverage error: {:.7f}".format(iter_count_avrg, error_avg))     # Debug: Print average numberof  iterations and average link length error
 
         # Add the end link position to the plot
-        self.joint_pos = np.fliplr(self.joint_pos)
-        end_effctor_pos = np.dot(self.A_head_2, self.v_end)[0:3, :]
-        self.joint_pos = np.hstack((self.joint_pos, end_effctor_pos))
+        joints_pos = np.fliplr(joints_pos)
+        end_effctor_pos = np.dot(head_mat, v_end)[0:3, :]
+        joints_pos = np.hstack((joints_pos, end_effctor_pos))
         # link_len = np.diff(self.joint_pos, axis=1)
         # link_len = np.linalg.norm(link_len, axis=0)
         # print("Debug: split_curve: link mean length: {:.4f}\tAverage iterations: {:.1f}.".format(link_len.mean(), iter_count/self.link_N))
 
         # print( (timer()-time1)*10e3)
+        return joints_pos
 
-    def calc_joint_angles(self, jointPos):
+    def calc_joint_angles(self, joint_pos):
         # self.joint_cmd = self.joint_pos[0, 0] ##- self.x_start
         joint_ang = []                                     # Create empty vector of angles
         # R = self.RzRyRd(y=0, z=0, d=self.joint_pos[0, 0])       # Generate the first transformation matrix to be placed at the first-back joint, we know its position: joint_pos[0,0]
-        R = self.RzRyRd(d=jointPos[0, 0])       # Generate the first transformation matrix to be placed at the first-back joint, we know its position: joint_pos[0,0]
+        R = self.RzRyRd(d=joint_pos[0, 0])       # Generate the first transformation matrix to be placed at the first-back joint, we know its position: joint_pos[0,0]
         # vec_len = 1000
         # vx = np.array([[vec_len], [0], [0], [1]])
         # vy = np.array([[0], [vec_len], [0], [1]])
         # vz = np.array([[0], [0], [vec_len], [1]])
 
         # Run on every link:
-        for i in range(self.link_N):
+        for i in range(self.link_N-1):
             # origin = np.dot(R, self.v0)[0:3]
             origin = R[0:3, -1].reshape(3, 1)                           # take the coordinate xyz of this joints
             # x_hat = (np.dot(R, self.vx)[0:3]-origin) / self.vec_len
@@ -240,7 +249,7 @@ class Robot:
             y_hat = (np.dot(R, self.vy)[0:3]-origin) / 1000
             z_hat = (np.dot(R, self.vz)[0:3]-origin) / 1000
 
-            next_joint_pose = jointPos[:, i+1].reshape((3, 1))    # Get the next joints position XYZ only
+            next_joint_pose = joint_pos[:, i+2].reshape((3, 1))    # Get the next joints position XYZ only
             new_vec = next_joint_pose - origin                          # Vector for the link
 
             x_val = np.vdot(new_vec, x_hat)                             # X_het projection on the link vector
@@ -269,6 +278,7 @@ class Robot:
             #     thetaY = 0
 
             joint_ang = np.append(joint_ang, theta)     # Update the joint_ang vector with the calculated angles
+
         # self.A_head_1 = np.dot(R, self.RzRyRd(d=-self.link_L))      # Update head_1 matrix using forward kinematics
         # self.A_head_1 = self.RzRyRd(d=jointPos[0, 0])
         # for i in range(len(joint_ang)-1):
@@ -278,9 +288,9 @@ class Robot:
         #         self.A_head_1 = np.dot(self.A_head_1, self.RzRyRd(z=joint_ang[i], d=self.link_L))
         # self.A_head_1 = np.dot(self.A_head_1, self.RzRyRd(z=joint_ang[-1]))
 
-        joint_cmd = np.append(jointPos[0, 0], joint_ang)    # Generate vector of command values which include linear command followed bt the angle command
+        joint_cmd = np.hstack((joint_pos[0, 0], joint_ang, self.thetaZ_record))    # Generate vector of command values which include linear command followed bt the angle command
         np.set_printoptions(precision=2)
-        print(self.A_head_1)
+        # print(self.A_head_1)
         return joint_ang, joint_cmd
 
     def calc_head_angles(self):
@@ -332,7 +342,7 @@ class Robot:
         # return (theta + np.pi) % (2 * np.pi) - np.pi
         if theta > 2*np.pi:
             return theta - 2*np.pi
-        elif theta < 2*np.pi:
+        elif theta < -2*np.pi:
             return theta + 2*np.pi
         else:
             return theta
