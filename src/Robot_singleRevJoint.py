@@ -54,7 +54,6 @@ class Robot:
         self.update_head_axis()
 
         # Update joint poses
-        self.joint_pos = []
         # self.joint_pos = [np.arange(self.x_start, self.link_L+1, self.link_L),
         #                   np.zeros((1, self.link_N+1)),
         #                   np.zeros((1, self.link_N+1))]
@@ -74,12 +73,8 @@ class Robot:
 
     def move_head(self, thetaY=0, thetaZ=0, forward=0):
         # Scale the joysticl movement by scale factor: thetaYstep, thetaZstep
-        print("thetaY: ", np.round(thetaY, 2), "\tthetaZ: ", np.round(thetaZ, 2), "\tforward: ", np.round(forward, 2))
         thetaY *= self.thetaYstep
         self.thetaZ_record += thetaZ * self.thetaZstep
-        print(self.thetaZ_record)
-        # print(self.joint_pos[0][0])
-        head_origin = None
         # just turn the head
 
         if forward >= 0 and self.joint_pos[0][0] <= 0:
@@ -92,18 +87,13 @@ class Robot:
             head_origin_2_temp = self.A_head_1 @ self.RzRyRd(d=self.link_L) @ self.RzRyRd(z=self.thetaZ_record) @ self.v0
             head_origin_1, head_origin_2 = self.update_head_axis()
             if forward > 0:
-                # path_head_x = np.append(np.linspace(head_origin_1[0, 0], head_origin_2_temp[0, 0], 10), np.linspace(head_origin_2_temp[0, 0], head_origin_2[0, 0], 3))
-                # path_head_y = np.append(np.linspace(head_origin_1[1, 0], head_origin_2_temp[1, 0], 10), np.linspace(head_origin_2_temp[1, 0], head_origin_2[1, 0], 3))
-                # path_head_z = np.append(np.linspace(head_origin_1[2, 0], head_origin_2_temp[2, 0], 10), np.linspace(head_origin_2_temp[2, 0], head_origin_2[2, 0], 3))
-                # path_head = np.vstack((path_head_x, path_head_y, path_head_z))
+                # Head path only
                 path_head = np.vstack((np.append(np.linspace(head_origin_1[0, 0], head_origin_2_temp[0, 0], self.path_nodes_in_link), np.linspace(head_origin_2_temp[0, 0], head_origin_2[0, 0], 2)[1:]),
                                        np.append(np.linspace(head_origin_1[1, 0], head_origin_2_temp[1, 0], self.path_nodes_in_link), np.linspace(head_origin_2_temp[1, 0], head_origin_2[1, 0], 2)[1:]),
                                        np.append(np.linspace(head_origin_1[2, 0], head_origin_2_temp[2, 0], self.path_nodes_in_link), np.linspace(head_origin_2_temp[2, 0], head_origin_2[2, 0], 2)[1:])))
-
                 self.joint_pos = self.split_curve_4(np.hstack((self.path, path_head[:, 1:])), self.link_N, self.link_L, self.A_head_2)
                 self.path = np.hstack((self.path, self.joint_pos[:, -3].reshape(3, 1)))
                 self.joint_ang, self.joint_cmd = self.calc_joint_angles(self.joint_pos)
-                # self.thetaZ_record = self.joint_ang[-1]
         elif forward < 0:
             # forward < 0 == Going backwards
             # How many "steps" (points along the path) go back
@@ -125,14 +115,14 @@ class Robot:
         # Continuous msg publish
 
 
-        if forward > 0:
-            self.joint_ang, self.joint_cmd = self.calc_joint_angles(self.joint_pos)
-        else:
-            temp = 0
-            # print(self.head_axis)
-            # head_pos
-            # self.calc_joint_angles(np.hstack((self.joint_pos, np.dot())))
-        # self.recontract_joints_pos()
+        # if forward > 0:
+        #     self.joint_ang, self.joint_cmd = self.calc_joint_angles(self.joint_pos)
+        # else:
+        #     temp = 0
+        #     # print(self.head_axis)
+        #     # head_pos
+        #     # self.calc_joint_angles(np.hstack((self.joint_pos, np.dot())))
+        # # self.recontract_joints_pos()
 
     def update_head_axis(self):
         # updated to single revolve joints
@@ -235,10 +225,6 @@ class Robot:
         joint_ang = []                                     # Create empty vector of angles
         # R = self.RzRyRd(y=0, z=0, d=self.joint_pos[0, 0])       # Generate the first transformation matrix to be placed at the first-back joint, we know its position: joint_pos[0,0]
         R = self.RzRyRd(d=joint_pos[0, 0])       # Generate the first transformation matrix to be placed at the first-back joint, we know its position: joint_pos[0,0]
-        # vec_len = 1000
-        # vx = np.array([[vec_len], [0], [0], [1]])
-        # vy = np.array([[0], [vec_len], [0], [1]])
-        # vz = np.array([[0], [0], [vec_len], [1]])
 
         # Run on every link:
         for i in range(self.link_N-1):
@@ -258,7 +244,7 @@ class Robot:
 
             if i % 2 == 0:
                 # Odd joints 0,2,4,.. = Rotation axis is Y
-                theta = np.arctan2(z_val, x_val)
+                theta = -np.arctan2(z_val, x_val)
                 theta = self.wrap2pi(theta)
                 R = np.dot(R, self.RzRyRd(y=theta, d=self.link_L))  # Using forward kinematics and the calculated angles, go to the next joint
             else:
@@ -269,44 +255,20 @@ class Robot:
 
             if i == self.link_N-2:
                 self.A_head_1 = np.dot(R, self.RzRyRd(d=-self.link_L))
-            # thetaZ = np.arctan2(y_val, x_val)                               # Calculate the joint Z rotation angle
-            # if abs(thetaZ) == np.pi:
-            #     thetaZ = 0
-            #
-            # thetaY = -np.arctan2(z_val, sqrt(x_val**2 + y_val**2))          # Calculate the joint Y rotation angle
-            # if abs(thetaY) == np.pi:
-            #     thetaY = 0
 
             joint_ang = np.append(joint_ang, theta)     # Update the joint_ang vector with the calculated angles
 
-        # self.A_head_1 = np.dot(R, self.RzRyRd(d=-self.link_L))      # Update head_1 matrix using forward kinematics
-        # self.A_head_1 = self.RzRyRd(d=jointPos[0, 0])
-        # for i in range(len(joint_ang)-1):
-        #     if i % 2 == 0:
-        #         self.A_head_1 = np.dot(self.A_head_1, self.RzRyRd(y=joint_ang[i], d=self.link_L))
-        #     else:
-        #         self.A_head_1 = np.dot(self.A_head_1, self.RzRyRd(z=joint_ang[i], d=self.link_L))
-        # self.A_head_1 = np.dot(self.A_head_1, self.RzRyRd(z=joint_ang[-1]))
-
         joint_cmd = np.hstack((joint_pos[0, 0], joint_ang, self.thetaZ_record))    # Generate vector of command values which include linear command followed bt the angle command
-        np.set_printoptions(precision=2)
-        # print(self.A_head_1)
         return joint_ang, joint_cmd
-
-    def calc_head_angles(self):
-        print("r")
-        # Recalculate head movement only
 
     def recontract_joints_pos(self):
         R = self.RzRyRd(z=0, y=0, d=self.joint_cmd[0])
-        # recon_joints = np.dot(R, self.v0)
         recon_joints = R[:, -1].reshape(4, 1)
 
         for i in range(1, self.link_N):
-            # joint_cmd_ind_Y = i*2-1
-            # joint_cmd_ind_Z = i*2
+            # Reminder: joint_cmd_ind_Y = i*2-1
+            # Reminder: joint_cmd_ind_Z = i*2
             R = np.dot(R, self.RzRyRd(z=self.joint_cmd[i*2-1], y=self.joint_cmd[i*2], d=self.link_L))
-            # new_joint_pos = np.dot(R, self.v0)
             new_joint_pos = R[:, -1].reshape(4, 1)
             recon_joints = np.hstack((recon_joints, new_joint_pos))
 
@@ -339,7 +301,7 @@ class Robot:
         origin = self.update_head_axis()
 
     def wrap2pi(self, theta):
-        # return (theta + np.pi) % (2 * np.pi) - np.pi
+        # Return (theta + np.pi) % (2 * np.pi) - np.pi
         if theta > 2*np.pi:
             return theta - 2*np.pi
         elif theta < -2*np.pi:
