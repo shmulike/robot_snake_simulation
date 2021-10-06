@@ -33,6 +33,7 @@ class Robot:
         # self.A_head_2 = np.dot(self.A_head_1, self.RzRyRd(d=self.link_L))
         self.head_axis_1 = []
         self.head_axis_2 = []
+        self.thetaZ_record = 0
 
         self.vec_len = 1000
         self.vx = np.array([[self.vec_len], [0], [0], [1]])
@@ -58,7 +59,7 @@ class Robot:
         #                   np.zeros((1, self.link_N+1)),
         #                   np.zeros((1, self.link_N+1))]
         self.joint_pos = self.split_curve_4(self.path, self.link_N, self.link_L, self.A_head_2)
-        #self.joint_ang, self.joint_cmd = self.calc_joint_angles(self.joint_pos)
+        # self.joint_ang, self.joint_cmd = self.calc_joint_angles(self.joint_pos)
         #self.recontract_joints_pos()
 
     # def turnHead(self, thetaY=0, thetaZ=0):
@@ -68,7 +69,7 @@ class Robot:
     #     self.A_head = np.dot(self.A_head, self.RyRzRd(thetaY, thetaZ, 0))
     #     self.update_head_axis()
 
-        self.thetaZ_record = 0
+
 
 
     def move_head(self, thetaY=0, thetaZ=0, forward=0):
@@ -93,7 +94,7 @@ class Robot:
                                        np.append(np.linspace(head_origin_1[2, 0], head_origin_2_temp[2, 0], self.path_nodes_in_link), np.linspace(head_origin_2_temp[2, 0], head_origin_2[2, 0], 2)[1:])))
                 self.joint_pos = self.split_curve_4(np.hstack((self.path, path_head[:, 1:])), self.link_N, self.link_L, self.A_head_2)
                 self.path = np.hstack((self.path, self.joint_pos[:, -3].reshape(3, 1)))
-                self.joint_ang, self.joint_cmd = self.calc_joint_angles(self.joint_pos)
+
         elif forward < 0:
             # forward < 0 == Going backwards
             # How many "steps" (points along the path) go back
@@ -109,6 +110,7 @@ class Robot:
             # update head position and orientation
             # self.A_head = self.path[:, -1].reshape((4,1 ))
 
+        self.joint_ang, self.joint_cmd = self.calc_joint_angles(self.joint_pos)
         #print("head1:\n", np.round(self.A_head_1, 2), "\nhead2:\n", np.round(self.A_head_2, 2), "\n")
         # Update head position relative to world-system
 
